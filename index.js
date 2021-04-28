@@ -15,7 +15,7 @@ function Onload(){
         attrs : [
             {
                 code : 'lineWidth',
-                name : '线粗',
+                name : 'Line width',
                 type : 'select',
                 options : new Array(20).fill(undefined)
                                        .map((v, i) => {
@@ -27,7 +27,7 @@ function Onload(){
             }, {
                 code : 'strokeColor',
                 type : 'color-picker',
-                name : '线色',
+                name : 'Color',
                 cb : (v) => {
                     console.log(v);
                     paintBoard.strokeConfig.strokeColor = v;
