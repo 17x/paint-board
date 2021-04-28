@@ -9,7 +9,7 @@ function Onload(){
         height : 300,
         showTool : true,
         history : true,
-        historyMax : 10
+        historyMax : 100
     });
     let toolbarConfig = {
         attrs : [
@@ -168,9 +168,9 @@ function Onload(){
 
 
     // test
-    let s = 100
-    ctx.lineWidth = 10;
-    ctx.strokeRect((500 - s) / 2, (300 - s) / 2, s, s);
+    // let s = 100
+    // ctx.lineWidth = 10;
+    // ctx.strokeRect((500 - s) / 2, (300 - s) / 2, s, s);
     // ctx.fillStyle = '#ffffff';
     // ctx.fillRect(462.5, 262.5, 25, 25);
 }

@@ -357,7 +357,7 @@ class PaintBoard{
             for(let i = x - 1; i < x + 2; i++){
                 for(let j = y - 1; j < y + 2; j++){
                     if(
-                        0 < i && i < width && 0 < j && j < height && !pathMap[i + '_' + j]
+                        0 <= i && i < width && 0 <= j && j < height && !pathMap[i + '_' + j]
                     ){
                         pathMap[i + '_' + j] = true;
                         Do(i, j);
