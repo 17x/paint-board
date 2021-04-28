@@ -8,6 +8,7 @@ class PaintBoard{
     isClean = true;
     isContinuous = false;
     _lastMouseUpTimeStamp = null;
+    _bucketDoing = false;
     eraseMode = false;
     paintBucketMode = false;
     strokeConfig = {
@@ -95,17 +96,22 @@ class PaintBoard{
             }
 
             if(this.paintBucketMode){
+                if(this._bucketDoing){
+                    console.log('bucket doing');
+                    return;
+                }
+
+                this._bucketDoing = true;
                 PaintBoard.DumpBucket({
                     inputColor : this.strokeConfig.strokeColor,
                     currCoord : this.lastCoord,
                     ctx,
-                    onCompareResult : (r) => {
-                        if(r){
+                    cb : (msg) => {
+                        console.log('msg in cb', msg);
+                        if(msg === 'done'){
                             this.Snapshot();
                         }
-                    },
-                    cb : () => {
-                        this.Snapshot();
+                        this._bucketDoing = false;
                     }
                 });
                 return;
@@ -150,7 +156,7 @@ class PaintBoard{
     Snapshot(replace = false){
         let historyItem = null;
         // cleared
-        console.log('Snapshot - isClean - ', this.isClean);
+        // console.log('Snapshot - isClean - ', this.isClean);
         if(this.isClean){
             historyItem = {
                 t : 'clear'
@@ -252,7 +258,7 @@ class PaintBoard{
         ctx.stroke();
     }
 
-    static DumpBucket({ ctx, currCoord, inputColor, onCompareResult }){
+    static DumpBucket({ ctx, currCoord, inputColor, cb }){
         let { x, y } = currCoord;
         let { width, height } = ctx.canvas;
         let imageData = ctx.getImageData(0, 0, width, height);
@@ -260,33 +266,65 @@ class PaintBoard{
             coord : currCoord,
             imageData
         });
+        let pathMap = {};
+        let todoArr = [[x, y]];
+        let wait = false;
+        let sum = null;
 
         inputColor = PaintBoard.hexToRgbA(inputColor);
 
-        // console.log(inputColor);
-        let max = 10000;
-        // let pathMap = {};
-        let pathMap = {};
-        let todoArr = [];
-        let todoI = 0;
+        let d1 = PaintBoard.CompareColor(
+            inputColor,
+            startColor
+        );
+
+        if(d1 === 0){
+            cb && cb('same color');
+            return;
+        }
 
         try{
-            Do(x, y);
+            SafeLock();
         } catch(e){
             console.log(e);
-            console.log(Object.keys(pathMap).length);
-            // console.log(pathMap);
-            console.log(width * height * 4);
-            // console.log(imageData);
+            cb && cb(e);
         } finally{
-            console.log(pathMap);
-            ctx.putImageData(imageData, 0, 0);
+            // console.log(Object.keys(pathMap).length);
+            // console.log(pathMap);
+            // cb && cb();
+        }
+
+        function SafeLock(){
+            let tmp = todoArr;
+            wait = false;
+            sum = 5000;
+            todoArr = [];
+
+            for(let item of tmp){
+                let [x, y] = item;
+                Do(x, y);
+            }
+
+            if(wait){
+                setTimeout(function(){
+                    SafeLock();
+                }, 0);
+            } else{
+                ctx.putImageData(imageData, 0, 0);
+                cb && cb('done');
+            }
         }
 
         // do
-        function Do(x, y, cb){
+        function Do(x, y){
             if(pathMap[x + '_' + y]){
                 pathMap[x + '_' + y]++;
+            }
+
+            if(sum-- < 0){
+                wait = true;
+                todoArr.push([x, y]);
+                return;
             }
             let currRgb = PaintBoard.GetImageDataByCoord({
                 coord : {
@@ -311,65 +349,21 @@ class PaintBoard{
                     }
                 });
             } else{
-                cb && cb();
                 return;
             }
 
-            // console.log(distance);
-
             pathMap[x + '_' + y] = true;
-            let arr = [];
+
             for(let i = x - 1; i < x + 2; i++){
                 for(let j = y - 1; j < y + 2; j++){
                     if(
-                        !(i < 0 || j < 0 || i > width - 1 || j > height - 1 || (i === x && j === y))
-                        && !pathMap[i + '_' + j]
+                        0 < i && i < width && 0 < j && j < height && !pathMap[i + '_' + j]
                     ){
-                        if(!pathMap[i + '_' + j]){
-                            arr.push({
-                                i,
-                                j
-                            });
-                            pathMap[i + '_' + j] = true
-                        }
-
+                        pathMap[i + '_' + j] = true;
+                        Do(i, j);
                     }
                 }
             }
-            // console.log(arr);
-            let _i = 0;
-            let DoNext = () => {
-                // console.log(_i, arr.length);
-                if(_i === arr.length){
-                    setTimeout(() => {
-                        cb && cb();
-                    }, 500);
-                    return;
-                }
-
-                // console.log(arr[_i]);
-                Do(arr[_i].i, arr[_i].j, () => {
-                    _i++;
-                    DoNext();
-                });
-            };
-
-            DoNext();
-            /* for(let i = x - 1; i < x + 2; i++){
-              for(let j = y - 1; j < y + 2; j++){
-                  if(
-                      i < 0 ||
-                      j < 0 ||
-                      i > width - 1 ||
-                      j > height - 1 ||
-                      pathMap[i + '_' + j]
-                  ){
-                      continue;
-                  }
-
-                  Do(i, j);
-              }
-          }*/
         }
     }
 
