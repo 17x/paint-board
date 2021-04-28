@@ -12,7 +12,7 @@ class PaintBoard{
     eraseMode = false;
     paintBucketMode = false;
     strokeConfig = {
-        strokeWidth : 15,
+        strokeWidth : 1,
         strokeColor : '#000000'
     };
 
@@ -239,13 +239,16 @@ class PaintBoard{
     }
 
     static Stroke({ ctx, lastCoord, currCoord, strokeWidth, strokeColor }){
-        ctx.beginPath();
-        ctx.lineCap = 'round';
-        ctx.lineWidth = strokeWidth;
-        ctx.strokeStyle = strokeColor;
-        ctx.moveTo(lastCoord.x, lastCoord.y);
-        ctx.lineTo(currCoord.x, currCoord.y);
-        ctx.stroke();
+        // anti-aliasing, increase max to repeatedly render
+        for(let i = 0; i < 1; i++){
+            ctx.beginPath();
+            ctx.lineCap = 'round';
+            ctx.lineWidth = strokeWidth;
+            ctx.strokeStyle = strokeColor;
+            ctx.moveTo(lastCoord.x, lastCoord.y);
+            ctx.lineTo(currCoord.x, currCoord.y);
+            ctx.stroke();
+        }
     }
 
     static Erase({ ctx, lastCoord, currCoord, r = 10 }){
