@@ -2,12 +2,6 @@
 *
 *
 * */
-
-const SAList = [];
-const SA = () => {
-
-};
-
 class PaintBoard{
     props = null;
     isPainting = false;
@@ -183,7 +177,7 @@ class PaintBoard{
 
         this.historyStack.push(historyItem);
         this.historyIndex = this.historyStack.length - 1;
-        console.log(this.historyStack, this.historyIndex);
+        // console.log(this.historyStack, this.historyIndex);
     }
 
     ApplyHistory(){
@@ -262,62 +256,120 @@ class PaintBoard{
         let { x, y } = currCoord;
         let { width, height } = ctx.canvas;
         let imageData = ctx.getImageData(0, 0, width, height);
-        let currData = PaintBoard.GetImageDataByCoord({
+        let startColor = PaintBoard.GetImageDataByCoord({
             coord : currCoord,
             imageData
         });
-        // compare color
-        console.log(inputColor, currData);
-        let distance = PaintBoard.CompareColor(
-            PaintBoard.hexToRgbA(inputColor),
-            currData
-        );
-        onCompareResult(distance);
 
-        // too close
-        if(distance === 0){
-            return;
-        }
+        inputColor = PaintBoard.hexToRgbA(inputColor);
+
+        // console.log(inputColor);
         let max = 10000;
-        let count = 0;
-        let handledMap = {};
+        // let pathMap = {};
+        let pathMap = {};
+        let todoArr = [];
+        let todoI = 0;
+
         try{
             Do(x, y);
-
         } catch(e){
-            console.log(count);
             console.log(e);
+            console.log(Object.keys(pathMap).length);
+            // console.log(pathMap);
+            console.log(width * height * 4);
+            // console.log(imageData);
+        } finally{
+            console.log(pathMap);
+            ctx.putImageData(imageData, 0, 0);
         }
 
         // do
-        function Do(x, y){
-            /*    if(count >= max){
-                    return
-                }*/
+        function Do(x, y, cb){
+            if(pathMap[x + '_' + y]){
+                pathMap[x + '_' + y]++;
+            }
+            let currRgb = PaintBoard.GetImageDataByCoord({
+                coord : {
+                    x,
+                    y
+                },
+                imageData
+            });
 
-            if(x < 0 || y < 0 || x > width || y > height || handledMap[x + '_' + y]){
+            // handle current
+            let distance = PaintBoard.CompareColor(
+                startColor,
+                currRgb
+            );
+            if(distance < 10){
+                PaintBoard.SetImageDataByCoord({
+                    imageData,
+                    rgba : inputColor,
+                    coord : {
+                        x,
+                        y
+                    }
+                });
+            } else{
+                cb && cb();
                 return;
             }
 
-            if(Object.keys(handledMap).length >= width * height * 4){
-                console.log(count);
-                return;
-            }
+            // console.log(distance);
 
-            count++;
-
-            // console.log(x,y);
-            handledMap[x + '_' + y] = true;
-            // imageData
-            // around
+            pathMap[x + '_' + y] = true;
+            let arr = [];
             for(let i = x - 1; i < x + 2; i++){
                 for(let j = y - 1; j < y + 2; j++){
-                    if(i === x && y === j){
-                        continue;
+                    if(
+                        !(i < 0 || j < 0 || i > width - 1 || j > height - 1 || (i === x && j === y))
+                        && !pathMap[i + '_' + j]
+                    ){
+                        if(!pathMap[i + '_' + j]){
+                            arr.push({
+                                i,
+                                j
+                            });
+                            pathMap[i + '_' + j] = true
+                        }
+
                     }
-                    Do(i, j);
                 }
             }
+            // console.log(arr);
+            let _i = 0;
+            let DoNext = () => {
+                // console.log(_i, arr.length);
+                if(_i === arr.length){
+                    setTimeout(() => {
+                        cb && cb();
+                    }, 500);
+                    return;
+                }
+
+                // console.log(arr[_i]);
+                Do(arr[_i].i, arr[_i].j, () => {
+                    _i++;
+                    DoNext();
+                });
+            };
+
+            DoNext();
+            /* for(let i = x - 1; i < x + 2; i++){
+              for(let j = y - 1; j < y + 2; j++){
+                  if(
+                      i < 0 ||
+                      j < 0 ||
+                      i > width - 1 ||
+                      j > height - 1 ||
+                      pathMap[i + '_' + j]
+                  ){
+                      continue;
+                  }
+
+                  Do(i, j);
+              }
+          }*/
         }
     }
 
@@ -326,7 +378,7 @@ class PaintBoard{
 
         Object.keys(c1)
               .map(k => {
-                  d += (c1[k] - c2[k]) * (c1[k] - c2[k]);
+                  d += (c1[k] - c2[k]) ** 2;
               });
         return Math.sqrt(d);
     }
@@ -344,7 +396,8 @@ class PaintBoard{
             return {
                 r : (c >> 16) & 255,
                 g : (c >> 8) & 255,
-                b : c & 255
+                b : c & 255,
+                a : 255
             };
         }
         throw new Error('Bad Hex');
@@ -361,6 +414,21 @@ class PaintBoard{
             b : data[index + 2],
             a : data[index + 3]
         };
+    }
+
+    static SetImageDataByCoord({ imageData, coord, rgba }){
+        let { x, y } = coord;
+        let { width, height, data } = imageData;
+        var index = y * (width * 4) + x * 4;
+        let { r, g, b, a } = rgba;
+
+        // console.log(rgba);
+        a = a || 255;
+        // console.log(a);
+        data[index] = r;
+        data[index + 1] = g;
+        data[index + 2] = b;
+        data[index + 3] = a;
     }
 
     static CoordTransform({ canvas, event }){

@@ -29,6 +29,7 @@ function Onload(){
                 type : 'color-picker',
                 name : '线色',
                 cb : (v) => {
+                    console.log(v);
                     paintBoard.strokeConfig.strokeColor = v;
                 }
             }
@@ -51,7 +52,7 @@ function Onload(){
             {
                 code : 'eraser',
                 radius : 5,
-                onclick : (e,data) => {
+                onclick : (e, data) => {
                     let _ele = e.target;
 
                     if(_ele.classList.contains('active')){
@@ -78,15 +79,15 @@ function Onload(){
             },
             {
                 code : 'paintBucket',
-                onclick : (e,data) => {
+                onclick : (e, data) => {
                     let _ele = e.target;
 
                     if(_ele.classList.contains('active')){
                         _ele.classList.remove('active');
                         _ele.style.borderColor = 'transparent';
-                        canvas.style.cursor = 'default';
+                        // canvas.style.cursor = 'default';
                     } else{
-                        canvas.style.cursor = `url(${ data.icon }) -20 -20, auto`;
+                        // canvas.style.cursor = `url(${ data.icon }) -20 -20, auto`;
                         _ele.classList.add('active');
                         _ele.style.borderColor = '#000000';
                     }
@@ -136,9 +137,10 @@ function Onload(){
             color.style.backgroundColor = '#000000';
 
             color.onclick = () => {
-                var c = document.createElement('input');
+                let c = document.createElement('input');
 
                 c.onchange = () => {
+                    console.log(c.value);
                     color.style.backgroundColor = c.value;
                     paintBoard.strokeConfig.strokeColor = c.value;
                 };
@@ -159,9 +161,16 @@ function Onload(){
         toolbarDomItem.style.background = `url('${ method.icon }') 0 0 no-repeat`;
         toolbarDomItem.style.backgroundSize = `100% 100%`;
 
-        toolbarDomItem.onclick = (event) => method.onclick(event,method);
+        toolbarDomItem.onclick = (event) => method.onclick(event, method);
         toolbar.append(toolbarDomItem);
     });
     document.body.append(canvas, toolbar);
 
+
+    // test
+    let s = 100
+    ctx.lineWidth = 10;
+    ctx.strokeRect((500 - s) / 2, (300 - s) / 2, s, s);
+    // ctx.fillStyle = '#ffffff';
+    // ctx.fillRect(462.5, 262.5, 25, 25);
 }
