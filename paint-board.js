@@ -251,13 +251,16 @@ class PaintBoard{
         this.ctx.fillStyle = '#ffffff';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.isClean = true;
-        this.ClearRedoList();
-        let _b = false;
+        if(this.history){
+            this.ClearRedoList();
 
-        if(this.historyIndex > -1){
-            _b = this.historyStack[this.historyIndex].t === 'clear';
+            let _b = false;
+
+            if(this.historyIndex > -1){
+                _b = this.historyStack[this.historyIndex].t === 'clear';
+            }
+            this.Snapshot(_b);
         }
-        this.Snapshot(_b);
     }
 
     static Stroke({ ctx, lastCoord, currCoord, strokeWidth, strokeColor }){
