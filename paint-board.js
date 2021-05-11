@@ -44,10 +44,15 @@ class PaintBoard{
             event.preventDefault();
         };
         const move = (event) => {
+            let x = isTouch ? event.touches[0].pageX : event.x;
+            let y = isTouch ? event.touches[0].pageY : event.y;
             let { strokeWidth, strokeColor } = this.strokeConfig;
             let currCoord = PaintBoard.CoordTransform({
                 canvas,
-                event
+                event : {
+                    x,
+                    y
+                }
             });
 
             if(this.eraseMode){
@@ -70,21 +75,38 @@ class PaintBoard{
         };
         const up = () => {
             this.isPainting = false;
-
             if(this.history){
                 this.Snapshot(this.isContinuous);
                 this._lastMouseUpTimeStamp = Date.now();
             }
-            document.removeEventListener('mousemove', move);
+            document.removeEventListener(eventsName[1], move);
             document.removeEventListener('selectstart', disabledSelection);
-            document.removeEventListener('mouseup', up);
+            document.removeEventListener(eventsName[2], up);
         };
+        let isTouch = /Android|iPhone|iPad|iPod|SymbianOS|Windows Phone/.test(navigator.userAgent);
 
-        canvas.onmousedown = (event) => {
+        let eventsName = isTouch ?
+            [
+                'touchstart',
+                'touchmove',
+                'touchend'
+            ] : [
+                'mousedown',
+                'mousemove',
+                'mouseup'
+            ];
+
+        canvas['on' + eventsName[0]] = (event) => {
+            let x = isTouch ? event.touches[0].pageX : event.x;
+            let y = isTouch ? event.touches[0].pageY : event.y;
             this.isPainting = true;
+
             this.lastCoord = PaintBoard.CoordTransform({
                 canvas,
-                event
+                event : {
+                    x,
+                    y
+                }
             });
             let { strokeWidth, strokeColor } = this.strokeConfig;
 
@@ -131,9 +153,9 @@ class PaintBoard{
                 });
             }
 
-            document.addEventListener('mousemove', move);
+            document.addEventListener(eventsName[1], move);
             document.addEventListener('selectstart', disabledSelection);
-            document.addEventListener('mouseup', up);
+            document.addEventListener(eventsName[2], up);
         };
     }
 
@@ -262,11 +284,15 @@ class PaintBoard{
     }
 
     static DumpBucket({ ctx, currCoord, inputColor, cb }){
-        let { x, y } = currCoord;
+        let x = Math.round(currCoord.x)
+        let y = Math.round(currCoord.y)
         let { width, height } = ctx.canvas;
         let imageData = ctx.getImageData(0, 0, width, height);
         let startColor = PaintBoard.GetImageDataByCoord({
-            coord : currCoord,
+            coord : {
+                x,
+                y
+            },
             imageData
         });
         let pathMap = {};
@@ -300,7 +326,7 @@ class PaintBoard{
         function SafeLock(){
             let tmp = todoArr;
             wait = false;
-            sum = 5000;
+            sum = 500;
             todoArr = [];
 
             for(let item of tmp){
