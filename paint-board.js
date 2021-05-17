@@ -17,10 +17,11 @@ class PaintBoard{
     };
 
     constructor(props){
-        let { canvas, width, height, inputEventFunc, history = false, historyMax = 10 } = props;
-
-        canvas.width = width;
-        canvas.height = height;
+        let { canvas, inputEventFunc, history = false, historyMax = 10 } = props;
+        props.width = Math.round(props.width);
+        props.height = Math.round(props.height);
+        canvas.width = props.width;
+        canvas.height = props.height;
 
         this.props = props;
         this.canvas = canvas;
@@ -159,8 +160,19 @@ class PaintBoard{
         };
     }
 
-    SaveData(){
-
+    SaveData(returnType = 'arraybuffer', cb){
+        if(returnType === 'file'){
+            this.canvas.toBlob((blob) => {
+                let file = new File([blob], 'user-board.png', { lastModified : new Date() });
+                cb(file);
+            }, 'image/png');
+        } else if(returnType === 'arraybuffer'){
+            let { width, height } = this.props;
+            let imageData = this.ctx.getImageData(0, 0, width, height);
+            return imageData.data.buffer;
+        } else if(returnType === 'base64'){
+            return this.canvas.toDataURL('image/png');
+        }
     }
 
     Destroy(){
@@ -287,8 +299,8 @@ class PaintBoard{
     }
 
     static DumpBucket({ ctx, currCoord, inputColor, cb }){
-        let x = Math.round(currCoord.x)
-        let y = Math.round(currCoord.y)
+        let x = Math.round(currCoord.x);
+        let y = Math.round(currCoord.y);
         let { width, height } = ctx.canvas;
         let imageData = ctx.getImageData(0, 0, width, height);
         let startColor = PaintBoard.GetImageDataByCoord({

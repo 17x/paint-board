@@ -168,11 +168,25 @@ function Onload(){
     });
     document.body.append(canvas, toolbar);
 
+    file.onclick = () => {
+        paintBoard.SaveData('file',(file) =>{
+            console.log('file',file);
+        })
+    };
 
-    // test
-    // let s = 100
-    // ctx.lineWidth = 10;
-    // ctx.strokeRect((500 - s) / 2, (300 - s) / 2, s, s);
-    // ctx.fillStyle = '#ffffff';
-    // ctx.fillRect(462.5, 262.5, 25, 25);
+    arraybuffer.onclick = () => {
+        console.log(
+            'arraybuffer',
+            paintBoard.SaveData('arraybuffer')
+        );
+
+    };
+
+    base64.onclick = () => {
+        console.log(
+            'base64',
+            paintBoard.SaveData('base64')
+        );
+
+    };
 }
