@@ -1,16 +1,37 @@
 /*
-*
-*
-* */
+ *
+ *
+ * */
 class PaintBoard{
+    static isTouch = /Android|iPhone|iPad|iPod|SymbianOS|Windows Phone/.test(navigator.userAgent);
+    static eventsName = PaintBoard.isTouch ?
+        [
+            'touchstart',
+            'touchmove',
+            'touchend'
+        ] : [
+            'mousedown',
+            'mousemove',
+            'mouseup'
+        ];
     props = null;
-    isPainting = false;
+    // represent drawing line
+    isDrawing = false;
+    // init status
     isClean = true;
+    // when you got two draw operations and their intervals do not
+    // greater than certain time( by default is 1000ms ).
+    // they will be considered to one operation.
+    //
     isContinuous = false;
     _lastMouseUpTimeStamp = null;
-    _bucketDoing = false;
-    eraseMode = false;
-    paintBucketMode = false;
+    // in order to implement paint-bucket in javascript
+    // you need manipulates Image-Data
+    // this may take a ton of memory and cpu.
+    // while waiting for all manipulation finish,
+    // this will be set to true.
+    _bucketWorking = false;
+    editMode = 'static';
     strokeConfig = {
         strokeWidth : 1,
         strokeColor : '#000000'
@@ -41,6 +62,7 @@ class PaintBoard{
 
     Init(){
         let { canvas, ctx } = this;
+        let { isTouch, eventsName } = PaintBoard;
         const disabledSelection = (event) => {
             event.preventDefault();
         };
@@ -56,7 +78,7 @@ class PaintBoard{
                 }
             });
 
-            if(this.eraseMode){
+            if(this.editMode === 'erase'){
                 PaintBoard.Erase({
                     lastCoord : this.lastCoord,
                     currCoord,
@@ -75,7 +97,7 @@ class PaintBoard{
             this.lastCoord = currCoord;
         };
         const up = () => {
-            this.isPainting = false;
+            this.isDrawing = false;
             if(this.history){
                 this.Snapshot(this.isContinuous);
                 this._lastMouseUpTimeStamp = Date.now();
@@ -84,23 +106,11 @@ class PaintBoard{
             document.removeEventListener('selectstart', disabledSelection);
             document.removeEventListener(eventsName[2], up);
         };
-        let isTouch = /Android|iPhone|iPad|iPod|SymbianOS|Windows Phone/.test(navigator.userAgent);
-
-        let eventsName = isTouch ?
-            [
-                'touchstart',
-                'touchmove',
-                'touchend'
-            ] : [
-                'mousedown',
-                'mousemove',
-                'mouseup'
-            ];
 
         canvas['on' + eventsName[0]] = (event) => {
             let x = isTouch ? event.touches[0].pageX : event.x;
             let y = isTouch ? event.touches[0].pageY : event.y;
-            this.isPainting = true;
+            this.isDrawing = true;
 
             this.lastCoord = PaintBoard.CoordTransform({
                 canvas,
@@ -118,13 +128,13 @@ class PaintBoard{
                 this.isContinuous = (Date.now() - this._lastMouseUpTimeStamp) < 1000;
             }
 
-            if(this.paintBucketMode){
-                if(this._bucketDoing){
+            if(this.editMode === 'paintBucket'){
+                if(this._bucketWorking){
                     console.log('bucket doing');
                     return;
                 }
 
-                this._bucketDoing = true;
+                this._bucketWorking = true;
                 PaintBoard.DumpBucket({
                     inputColor : this.strokeConfig.strokeColor,
                     currCoord : this.lastCoord,
@@ -134,11 +144,11 @@ class PaintBoard{
                         if(msg === 'done'){
                             this.Snapshot();
                         }
-                        this._bucketDoing = false;
+                        this._bucketWorking = false;
                     }
                 });
                 return;
-            } else if(this.eraseMode){
+            } else if(this.editMode === 'erase'){
                 PaintBoard.Erase({
                     lastCoord : this.lastCoord,
                     currCoord : this.lastCoord,
@@ -180,11 +190,19 @@ class PaintBoard{
     }
 
     ToggleErase(){
-        this.eraseMode = !this.eraseMode;
+        if(this.editMode === 'erase'){
+            this.editMode = null;
+        } else{
+            this.editMode = 'erase';
+        }
     }
 
     TogglePaintBucket(){
-        this.paintBucketMode = !this.paintBucketMode;
+        if(this.editMode === 'paintBucket'){
+            this.editMode = null;
+        } else{
+            this.editMode = 'paintBucket';
+        }
     }
 
     Snapshot(replace = false){
@@ -272,6 +290,151 @@ class PaintBoard{
                 _b = this.historyStack[this.historyIndex].t === 'clear';
             }
             this.Snapshot(_b);
+        }
+    }
+
+    StartPolygon({} = {}){
+        // create a fake mask on the main canvas
+        // creation process happens on this layer
+        if(this.editMode === 'polygon'){
+            this.editMode = 'static';
+            return
+        }
+
+        this.editMode = 'polygon';
+
+        // clone from origin canvas
+        let cvs = this.canvas.cloneNode();
+        let ctx = cvs.getContext('2d');
+        let _rect = this.canvas.getBoundingClientRect();
+
+        cvs.style.left = _rect.left + 'px';
+        cvs.style.top = _rect.top + 'px';
+        cvs.style.position = 'absolute';
+
+        this.canvas.parentNode.appendChild(cvs);
+
+        // define events
+        let points = [];
+        let { isTouch, eventsName } = PaintBoard;
+        const disabledSelection = (event) => {
+            event.preventDefault();
+        };
+        const move = (event) => {
+            let x = isTouch ? event.touches[0].pageX : event.x;
+            let y = isTouch ? event.touches[0].pageY : event.y;
+            let curr = null;
+
+            if(points.length > 0){
+                curr = points[points.length - 1];
+
+                curr.x = x;
+                curr.y = y;
+                Render();
+            }
+
+        };
+        const up = (event) => {
+            console.log(event);
+            if(points.length === 0){
+                return;
+            }
+
+            /*this.isDrawing = false;
+             if(this.history){
+             this.Snapshot(this.isContinuous);
+             this._lastMouseUpTimeStamp = Date.now();
+             }*/
+           /* let x = isTouch ? event.touches[0].pageX : event.x;
+            let y = isTouch ? event.touches[0].pageY : event.y;*/
+
+            let { x, y } = points[points.length - 1];
+
+            // and set new end
+            points.push(
+                {
+                    x,
+                    y
+                }
+            );
+            // console.log(points);
+
+
+            Render();
+
+            document.removeEventListener('selectstart', disabledSelection);
+            document.removeEventListener(eventsName[2], up);
+        };
+        const Render = () => {
+            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            let { strokeWidth, strokeColor } = this.strokeConfig;
+
+            for(let i = 0; i < points.length; i++){
+                let lastP = null;
+                let currP = points[i];
+
+                if(points.length === 0){
+                    lastP = currP;
+                } else{
+                    if(i === 0){
+                        lastP = points[points.length - 1];
+                    } else{
+                        lastP = points[i - 1];
+                    }
+                }
+
+                PaintBoard.Stroke({
+                    ctx,
+                    lastCoord : lastP,
+                    currCoord : currP,
+                    strokeWidth,
+                    strokeColor
+                });
+            }
+        };
+
+        // gesture start
+        cvs['on' + eventsName[0]] = (event) => {
+            // non-touch device and left click
+            // prevent
+            if(!isTouch && event.buttons !== 1){
+                return;
+            }
+
+            let x = isTouch ? event.touches[0].pageX : event.x;
+            let y = isTouch ? event.touches[0].pageY : event.y;
+
+            if(points.length === 0){
+                // start and end
+                points.push(
+                    {
+                        x,
+                        y
+                    }, {
+                        x,
+                        y
+                    }
+                );
+            }
+
+            document.addEventListener('selectstart', disabledSelection);
+            document.addEventListener(eventsName[2], up);
+        };
+
+        cvs.oncontextmenu = (event) => {
+            event.preventDefault();
+            points.length -= 1;
+            Render();
+
+            if(!isTouch){
+                document.removeEventListener(eventsName[1], move);
+            }
+            cvs.oncontextmenu = null;
+            cvs['on' + eventsName[0]] = null;
+        };
+
+        if(!isTouch){
+            document.addEventListener(eventsName[1], move);
         }
     }
 
