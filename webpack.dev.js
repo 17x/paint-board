@@ -19,6 +19,7 @@ module.exports = merge(common, {
         compress : false,
         // open : true,
         stats : { colors : true },
-        contentBase : './public/'
+        contentBase : './build/',
+        writeToDisk: true,
     }
 });

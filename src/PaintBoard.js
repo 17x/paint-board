@@ -1,15 +1,16 @@
+
 class PaintBoard{
-    static isTouch = /Android|iPhone|iPad|iPod|SymbianOS|Windows Phone/.test(navigator.userAgent);
-    static eventsName = PaintBoard.isTouch ?
-        [
-            'touchstart',
-            'touchmove',
-            'touchend'
-        ] : [
-            'mousedown',
-            'mousemove',
-            'mouseup'
-        ];
+    // static isTouch = /Android|iPhone|iPad|iPod|SymbianOS|Windows Phone/.test(navigator.userAgent);
+    /*static eventsName = PaintBoard.isTouch ?
+     [
+     'touchstart',
+     'touchmove',
+     'touchend'
+     ] : [
+     'mousedown',
+     'mousemove',
+     'mouseup'
+     ];*/
 
     props = null;
     // represent drawing line
@@ -35,7 +36,12 @@ class PaintBoard{
     };
 
     constructor(props){
+        props = {
+            ...props
+        };
+
         let { canvas, inputEventFunc, history = false, historyMax = 10 } = props;
+
         props.width = Math.round(props.width);
         props.height = Math.round(props.height);
         canvas.width = props.width;
