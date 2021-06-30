@@ -1,7 +1,3 @@
-/*
- *
- *
- * */
 class PaintBoard{
     static isTouch = /Android|iPhone|iPad|iPod|SymbianOS|Windows Phone/.test(navigator.userAgent);
     static eventsName = PaintBoard.isTouch ?
@@ -14,6 +10,7 @@ class PaintBoard{
             'mousemove',
             'mouseup'
         ];
+
     props = null;
     // represent drawing line
     isDrawing = false;
@@ -31,7 +28,7 @@ class PaintBoard{
     // while waiting for all manipulation finish,
     // this will be set to true.
     _bucketWorking = false;
-    editMode = 'static';
+    currTool = 'static';
     strokeConfig = {
         strokeWidth : 1,
         strokeColor : '#000000'
@@ -78,7 +75,7 @@ class PaintBoard{
                 }
             });
 
-            if(this.editMode === 'erase'){
+            if(this.currTool === 'erase'){
                 PaintBoard.Erase({
                     lastCoord : this.lastCoord,
                     currCoord,
@@ -128,7 +125,7 @@ class PaintBoard{
                 this.isContinuous = (Date.now() - this._lastMouseUpTimeStamp) < 1000;
             }
 
-            if(this.editMode === 'paintBucket'){
+            if(this.currTool === 'paintBucket'){
                 if(this._bucketWorking){
                     console.log('bucket doing');
                     return;
@@ -148,7 +145,7 @@ class PaintBoard{
                     }
                 });
                 return;
-            } else if(this.editMode === 'erase'){
+            } else if(this.currTool === 'erase'){
                 PaintBoard.Erase({
                     lastCoord : this.lastCoord,
                     currCoord : this.lastCoord,
@@ -189,19 +186,25 @@ class PaintBoard{
 
     }
 
+    ToggleTool(t){
+        if(this.currTool === t){
+            this.currTool.Quit();
+        }
+    }
+
     ToggleErase(){
-        if(this.editMode === 'erase'){
-            this.editMode = null;
+        if(this.currTool === 'erase'){
+            this.currTool = null;
         } else{
-            this.editMode = 'erase';
+            this.currTool = 'erase';
         }
     }
 
     TogglePaintBucket(){
-        if(this.editMode === 'paintBucket'){
-            this.editMode = null;
+        if(this.currTool === 'paintBucket'){
+            this.currTool = null;
         } else{
-            this.editMode = 'paintBucket';
+            this.currTool = 'paintBucket';
         }
     }
 
@@ -296,12 +299,12 @@ class PaintBoard{
     StartPolygon({} = {}){
         // create a fake mask on the main canvas
         // creation process happens on this layer
-        if(this.editMode === 'polygon'){
-            this.editMode = 'static';
-            return
+        if(this.currTool === 'polygon'){
+            this.currTool = 'static';
+            return;
         }
 
-        this.editMode = 'polygon';
+        this.currTool = 'polygon';
 
         // clone from origin canvas
         let cvs = this.canvas.cloneNode();
@@ -345,8 +348,8 @@ class PaintBoard{
              this.Snapshot(this.isContinuous);
              this._lastMouseUpTimeStamp = Date.now();
              }*/
-           /* let x = isTouch ? event.touches[0].pageX : event.x;
-            let y = isTouch ? event.touches[0].pageY : event.y;*/
+            /* let x = isTouch ? event.touches[0].pageX : event.x;
+             let y = isTouch ? event.touches[0].pageY : event.y;*/
 
             let { x, y } = points[points.length - 1];
 
@@ -358,7 +361,6 @@ class PaintBoard{
                 }
             );
             // console.log(points);
-
 
             Render();
 
