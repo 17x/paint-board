@@ -174,7 +174,10 @@ const Polygon = (() => {
                 points.length = 0;
             }
         }else{
-            points.length -= 1;
+            if(points.length > 0){
+                points.length -= 1;
+            }
+
             if(points.length < 3){
                 points.length = 0;
             }

@@ -176,6 +176,8 @@ function Onload(){
                 canvas.style.cursor = `url(${ tool.cursor }) 16 16, auto`;
 
                 lastEle = ele;
+            } else{
+                lastEle = null;
             }
 
             tool.onclick(event, tool);
