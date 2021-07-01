@@ -2,7 +2,7 @@ import { isTouch, eventsName } from '../Utils/Base';
 import CoordTransform from '../Utils/CoordTransform';
 import Stroke from '../Utils/Stroke';
 
-const PenTool = (() => {
+const Pen = (() => {
     let canvas = null;
     let ctx = null;
 
@@ -13,8 +13,6 @@ const PenTool = (() => {
             event.preventDefault();
         };
         let lastCoord = null;
-        let lastMouseUpTimeStamp = null;
-        let isContinuous = null;
 
         const move = (event) => {
             let { strokeWidth, strokeColor } = this.strokeConfig;
@@ -29,6 +27,8 @@ const PenTool = (() => {
                 }
             });
 
+            this.Operating();
+
             Stroke({
                 start : lastCoord,
                 end : currCoord,
@@ -41,10 +41,7 @@ const PenTool = (() => {
         };
 
         const up = () => {
-            if(this.history){
-                this.Snapshot(isContinuous);
-                lastMouseUpTimeStamp = Date.now();
-            }
+            this.OperatingEnd();
             document.removeEventListener(eventsName[1], move);
             document.removeEventListener('selectstart', disabledSelection);
             document.removeEventListener(eventsName[2], up);
@@ -63,12 +60,7 @@ const PenTool = (() => {
                 }
             });
 
-            if(this.history){
-                this.isClean = false;
-                this.ClearRedoList();
-                // two operates interval less than 1000ms
-                isContinuous = (Date.now() - lastMouseUpTimeStamp) < 1000;
-            }
+            this.OperatingStart();
 
             Stroke({
                 start : lastCoord,
@@ -97,4 +89,4 @@ const PenTool = (() => {
     };
 })();
 
-export default PenTool;
+export default Pen;

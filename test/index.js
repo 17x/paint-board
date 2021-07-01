@@ -6,11 +6,17 @@ function Onload(){
     let paintBoard = new PaintBoard({
         canvas,
         logicalWidth : window.innerWidth * 1,
-        logicalHeight : window.innerHeight * 1,
+        logicalHeight : window.innerWidth /1.7,
         tools : [],
         enableHistory : true,
         historyMax : 10,
-
+        background : {
+            color : '',
+            image : '',
+            type : 'css' // draw
+        },
+        clearColor : 'rgba(255,255,255,255)',
+        // clearColor : 'blue',
     });
     // console.log(paintBoard);
     // window.a = paintBoard
@@ -103,14 +109,15 @@ function Onload(){
                         _ele.style.borderColor = 'transparent';
                         canvas.style.cursor = 'default';
                     } else{
-                        canvas.style.cursor = `url(${ data.icon }) -20 -20, auto`;
+                        canvas.style.cursor = `url(${ data.cursor }) 16 16, auto`;
                         _ele.classList.add('active');
                         _ele.style.borderColor = '#000000';
                     }
 
-                    // console.log(data);
-                    paintBoard.ToggleErase(e);
+                    paintBoard.Tool('eraser');
+
                 },
+                cursor : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB/ElEQVRYhcWXvU4bQRSFv1lRQIQhHXVkp7WQhVwT0ZE0PESEUltK6NyGJ+AxaKAACQFtgszKShdQ6nQxTgHVRNc6Exlji5nFXh9pC69n7zlz5879ccRjGXgPvAPWgTfAqr7uAb+AHDgHjoG/MZZjBNSAL8AmcAV8A7rADfBba9a0rg40gQ3gAtjXukJYBL4C10DbjHvviXkkpK1v92UrCVWgAxwAjVji0ce+lY2OPBSFhlzcKko8RkhLNhsx5/0D2J0W+ZCIXdme6IklndnUdj7BE7m4ntwCC5YV7/2nolEbA+ecxcSdbtZ/VKWscMAlBmYejiKTgj3g0HvfmeXuDeI4FOcAFeBnyj2fghfq4qyYB7Ytw3nvu7Pe/ZAXusqq2yZgS+m1bBjnViZ3lLb7IRhnfUE3ILlgOPe4julsU2CcVbPyYGXVe39fQEBgdakCnHNWoHpZxNqZIlNWWitI4iJ7inEwzjsTcJtSKgPG3O1UGOdtFqKx4C5egsHtMwFnaqPKRlPcc0vFNyEV94FLYKdED+yoae2HF7U5lOO39iPkAXPHCfCxhN0bx6mO/RGWpKyMluzVJHVzbUoD5tqWD3sin+JgkhfJtovqlPMXjGb5c6NZTCGx6/JZU/H3yOHUHpuSjfxJtKcKCLDx/MPIeP5af/4ZGc+PosZz4B+Rgq5zR+fbqwAAAABJRU5ErkJggg==',
                 icon : 'data:image/png;base64,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'
             },
             {
@@ -139,7 +146,8 @@ function Onload(){
                 },
                 icon : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAiCAYAAABIiGl0AAABfGlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGAqSSwoyGFhYGDIzSspCnJ3UoiIjFJgv8PAzcDDIMRgxSCemFxc4BgQ4MOAE3y7xsAIoi/rgsxK8/x506a1fP4WNq+ZclYlOrj1gQF3SmpxMgMDIweQnZxSnJwLZOcA2TrJBUUlQPYMIFu3vKQAxD4BZIsUAR0IZN8BsdMh7A8gdhKYzcQCVhMS5AxkSwDZAkkQtgaInQ5hW4DYyRmJKUC2B8guiBvAgNPDRcHcwFLXkYC7SQa5OaUwO0ChxZOaFxoMcgcQyzB4MLgwKDCYMxgwWDLoMjiWpFaUgBQ65xdUFmWmZ5QoOAJDNlXBOT+3oLQktUhHwTMvWU9HwcjA0ACkDhRnEKM/B4FNZxQ7jxDLX8jAYKnMwMDcgxBLmsbAsH0PA4PEKYSYyjwGBn5rBoZt5woSixLhDmf8xkKIX5xmbARh8zgxMLDe+///sxoDA/skBoa/E////73o//+/i4H2A+PsQA4AJHdp4IxrEg8AAAKESURBVFgJ7Za/a1pRFMdPmi7SDII/cHCoAadmbWgmG3F3060RJxdXwUW6CeLo4CKYNv+Dm7EuKXERSUEQUhWnRJ1SHBpo8z1ww7vvl/eqkKE98N595/44n3vOPffet/f4+/EPvYC8egEmI/+DXSN//uWcLjuXUp+bHzeSrqq8Vu348OuB2u32c/fTj6dUr9fp6vsVZTIZgq4jezpZDW+bzSbbj0ajNBqNyOPx0Gq10oZrJRe8gncQQAGvVqsUDod5QuZl4I4OLy2w2QbgvV6PisWiNlwLfN27Zs/gYSqV4nkg9JvA90ul0mezJ3b67c9bqtVqFAqF2MOjd0fk9Xqp3+/zEwwGKZ1O02AwoG63y22RtxE7U1ynBAa0UqlwIj1NlA7eHPBgGN4UvjbUAgpSPp9/hjL56WVMOIR9PB4rrbkrGHu30Wgwo1Ao0GHkUPCkUsCxtRByRGRdwjnuY0DL5TItFgtyg0ozMCnCxmw2s+xzW4+NA7LZrKOnJo5FdfPcFnzx9YLELI/fH1sMqlTgDMeDNU8mk5yYyAFsSYjlrBbn78mHEwoEAtT51qH5fC6xhsOhpC+XS14SqdJBmU6nBGckMGaIQx+CUnw72NCqFme6GCSFejKZiPqdloheIpGQbErgWCzGayH12FKJx+OUy+UsViQwshBbB2HZheAmO/t0ZmtKAqMHDoldwAF1+zmwgLeFI1rroGDYgjeFA4pouXkK2xBHMBp1wi6gTuc57BnFFYyOKnAVqM/n418llBDHS4JbDS9xPeLHzij4G8FNJO5oY5vb91qPxWA7zzeFwqayx2ICd/d31Gq1yO/3Ew4cXU+FHW2wGLhtqRzqbUHm8f8e+C/s3Cw3dZCfAQAAAABJRU5ErkJggg=='
             }
-        ]/*,
+        ]
+        /*,
          shapes : [
          'pentagram',
          'rPolygon'
@@ -207,6 +215,7 @@ function Onload(){
         toolbarDomItem.onclick = (event) => method.onclick(event, method);
         toolbar.append(toolbarDomItem);
     });
+
     document.body.append(canvas, toolbar);
 
     file.onclick = () => {
@@ -237,7 +246,7 @@ function Onload(){
         let div = document.createElement('div');
         let hidInput = document.createElement('input');
 
-        hidInput.type = 'number'
+        hidInput.type = 'number';
         div.classList.add('layerInput');
         let style = `
              position : absolute;
@@ -250,7 +259,7 @@ function Onload(){
         let style2 = `
             width;100%;
             height:100%;
-        `
+        `;
         hidInput.setAttribute('style', style);
         div.setAttribute('style', style);
 
