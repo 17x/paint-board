@@ -74,7 +74,7 @@ const Polygon = (() => {
     const Start = function(){
         // create a local snapshot
         cloneCanvas = CloneCanvas(this.canvas);
-
+        points = []
         that = this;
         canvas = this.canvas;
         ctx = this.ctx;

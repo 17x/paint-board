@@ -3,7 +3,7 @@ window.addEventListener('load', Onload);
 function Onload(){
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
-    let currentEle = null;
+    let lastEle = null;
 
     let paintBoard = new PaintBoard({
         canvas,
@@ -164,20 +164,18 @@ function Onload(){
 
         toolbarDomItem.onclick = (event) => {
             let ele = event.target;
-
-            if(currentEle === ele){
-                ele.classList.remove('active');
-                ele.style.borderColor = 'transparent';
+            if(lastEle){
+                lastEle.classList.remove('active');
+                lastEle.style.borderColor = 'transparent';
                 canvas.style.cursor = 'default';
+            }
 
-                currentEle = null;
-            } else{
-                if(currentEle)
+            if(ele !== lastEle){
                 ele.classList.add('active');
                 ele.style.borderColor = '#000000';
                 canvas.style.cursor = `url(${ tool.cursor }) 16 16, auto`;
 
-                currentEle = ele;
+                lastEle = ele;
             }
 
             tool.onclick(event, tool);
@@ -196,10 +194,10 @@ function Onload(){
         toolbarDomItem.style.backgroundSize = `100% 100%`;
 
         toolbarDomItem.onclick = (event) => {
-            if(event.target !== currentEle){
-                currentEle = event.target;
+            if(event.target !== lastEle){
+                lastEle = event.target;
             } else{
-                currentEle;
+                lastEle;
             }
             method.onclick(event, method);
         };
