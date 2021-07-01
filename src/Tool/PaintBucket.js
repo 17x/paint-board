@@ -183,7 +183,7 @@ const PaintBucket = (() => {
         ctx = this.ctx;
 
         canvas['on' + eventsName[0]] = (event) => {
-            if(this._bucketWorking){
+            if(_bucketWorking){
                 console.log('bucket doing');
                 return;
             }
@@ -210,6 +210,7 @@ const PaintBucket = (() => {
                     console.log('msg in cb', msg);
 
                     _bucketWorking = false;
+                    this.OperatingEnd();
                 }
             });
         };
