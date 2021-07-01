@@ -38,7 +38,6 @@ const Polygon = (() => {
             endPoint.y = currCoord.y;
             Render();
         }
-
     };
 
     const Render = () => {
@@ -134,7 +133,7 @@ const Polygon = (() => {
                         ...currCoord
                     }
                 );
-            }else{
+            } else{
                 if(points.length === 0){
                     // start and end
                     points.push(
@@ -152,15 +151,16 @@ const Polygon = (() => {
             document.addEventListener(eventsName[2], up);
         };
 
+        // finish current polygon draw
+        // and start a new one
         canvas.oncontextmenu = (event) => {
             event.preventDefault();
-            points.length -= 1;
-            Render();
-            points.length = 0;
+            FinishDraw();
+            this.OperatingEnd();
+
 
             // update clone canvas
-            cloneCanvas = CloneCanvas(this.canvas);
-            this.OperatingEnd();
+            cloneCanvas = CloneCanvas(canvas);
         };
 
         if(!isTouch){
@@ -168,10 +168,27 @@ const Polygon = (() => {
         }
     };
 
-    const Quit = function(){
+    const FinishDraw = () => {
+        if(isTouch){
+            if(points.length < 3){
+                points.length = 0;
+            }
+        }else{
+            points.length -= 1;
+            if(points.length < 3){
+                points.length = 0;
+            }
+        }
+
+        Render();
         points.length = 0;
+    };
+
+    const Quit = function(){
+        FinishDraw()
         canvas.oncontextmenu = null;
         canvas['on' + eventsName[0]] = null;
+
         if(!isTouch){
             document.removeEventListener(eventsName[1], HandleMove);
         }
