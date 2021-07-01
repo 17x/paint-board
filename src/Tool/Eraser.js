@@ -98,10 +98,7 @@ const Eraser = (() => {
     };
 
     const Quit = function(){
-        return new Promise((resolve, reject) => {
-            canvas['on' + eventsName[0]] = null;
-            resolve();
-        });
+        canvas['on' + eventsName[0]] = null;
     };
 
     return {

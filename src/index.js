@@ -1,20 +1,24 @@
 import { isTouch, eventsName } from './Utils/Base';
 import Pen from './Tool/Pen';
 import Eraser from './Tool/Eraser';
+import Polygon from './Tool/Polygon';
 
 const toolMap = {
     pen : Pen,
-    eraser : Eraser
+    eraser : Eraser,
+    polygon : Polygon,
 };
 
+// todo list
+// line repair
 class PaintBoard{
+    lastMouseUpTimeStamp = null;
+    isContinuous = null;
     currentTool = null;
     strokeConfig = {
         strokeWidth : 1,
         strokeColor : '#000000'
     };
-    lastMouseUpTimeStamp = null;
-    isContinuous = null;
 
     constructor({ canvas, strokeConfig = {}, clearColor = '#ffffff', clearRadius = 16, ...rest }){
         this.props = rest;
@@ -34,6 +38,8 @@ class PaintBoard{
         this.clearRadius = clearRadius;
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+
+        this.Clear();
     }
 
     OperatingStart(){
@@ -61,10 +67,8 @@ class PaintBoard{
         // check enabled tool
         if(this.currentTool){
             if(this.currentTool === newTool){
-                this.currentTool.Quit()
-                    .then(() => {
-                        this.currentTool = null;
-                    });
+                this.currentTool.Quit();
+                this.currentTool = null;
             } else{
                 this.currentTool = newTool;
                 newTool.Start.apply(this);
@@ -73,6 +77,25 @@ class PaintBoard{
             this.currentTool = newTool;
             newTool.Start.apply(this);
         }
+    }
+
+    Clear(){
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.isClean = true;
+
+        /*
+         if(this.enableHistory){
+         this.ClearRedoList();
+
+         let _b = false;
+
+         if(this.historyIndex > -1){
+         _b = this.historyStack[this.historyIndex].t === 'clear';
+         }
+         this.Snapshot(_b);
+         }
+         */
     }
 }
 
