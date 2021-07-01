@@ -2,11 +2,13 @@ import { isTouch, eventsName } from './Utils/Base';
 import Pen from './Tool/Pen';
 import Eraser from './Tool/Eraser';
 import Polygon from './Tool/Polygon';
+import PaintBucket from './Tool/PaintBucket';
 
 const toolMap = {
     pen : Pen,
     eraser : Eraser,
     polygon : Polygon,
+    paintBucket : PaintBucket
 };
 
 // todo list

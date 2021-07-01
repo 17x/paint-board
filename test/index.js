@@ -63,7 +63,7 @@ function Onload(){
             {
                 code : 'paintBucket',
                 onclick : (e, data) => {
-                    paintBoard.TogglePaintBucket(e);
+                    paintBoard.Tool('paintBucket');
                 },
                 icon : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAiCAYAAABIiGl0AAABfGlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGAqSSwoyGFhYGDIzSspCnJ3UoiIjFJgv8PAzcDDIMRgxSCemFxc4BgQ4MOAE3y7xsAIoi/rgsxK8/x506a1fP4WNq+ZclYlOrj1gQF3SmpxMgMDIweQnZxSnJwLZOcA2TrJBUUlQPYMIFu3vKQAxD4BZIsUAR0IZN8BsdMh7A8gdhKYzcQCVhMS5AxkSwDZAkkQtgaInQ5hW4DYyRmJKUC2B8guiBvAgNPDRcHcwFLXkYC7SQa5OaUwO0ChxZOaFxoMcgcQyzB4MLgwKDCYMxgwWDLoMjiWpFaUgBQ65xdUFmWmZ5QoOAJDNlXBOT+3oLQktUhHwTMvWU9HwcjA0ACkDhRnEKM/B4FNZxQ7jxDLX8jAYKnMwMDcgxBLmsbAsH0PA4PEKYSYyjwGBn5rBoZt5woSixLhDmf8xkKIX5xmbARh8zgxMLDe+///sxoDA/skBoa/E////73o//+/i4H2A+PsQA4AJHdp4IxrEg8AAAKESURBVFgJ7Za/a1pRFMdPmi7SDII/cHCoAadmbWgmG3F3060RJxdXwUW6CeLo4CKYNv+Dm7EuKXERSUEQUhWnRJ1SHBpo8z1ww7vvl/eqkKE98N595/44n3vOPffet/f4+/EPvYC8egEmI/+DXSN//uWcLjuXUp+bHzeSrqq8Vu348OuB2u32c/fTj6dUr9fp6vsVZTIZgq4jezpZDW+bzSbbj0ajNBqNyOPx0Gq10oZrJRe8gncQQAGvVqsUDod5QuZl4I4OLy2w2QbgvV6PisWiNlwLfN27Zs/gYSqV4nkg9JvA90ul0mezJ3b67c9bqtVqFAqF2MOjd0fk9Xqp3+/zEwwGKZ1O02AwoG63y22RtxE7U1ynBAa0UqlwIj1NlA7eHPBgGN4UvjbUAgpSPp9/hjL56WVMOIR9PB4rrbkrGHu30Wgwo1Ao0GHkUPCkUsCxtRByRGRdwjnuY0DL5TItFgtyg0ozMCnCxmw2s+xzW4+NA7LZrKOnJo5FdfPcFnzx9YLELI/fH1sMqlTgDMeDNU8mk5yYyAFsSYjlrBbn78mHEwoEAtT51qH5fC6xhsOhpC+XS14SqdJBmU6nBGckMGaIQx+CUnw72NCqFme6GCSFejKZiPqdloheIpGQbErgWCzGayH12FKJx+OUy+UsViQwshBbB2HZheAmO/t0ZmtKAqMHDoldwAF1+zmwgLeFI1rroGDYgjeFA4pouXkK2xBHMBp1wi6gTuc57BnFFYyOKnAVqM/n418llBDHS4JbDS9xPeLHzij4G8FNJO5oY5vb91qPxWA7zzeFwqayx2ICd/d31Gq1yO/3Ew4cXU+FHW2wGLhtqRzqbUHm8f8e+C/s3Cw3dZCfAQAAAABJRU5ErkJggg=='
             },
