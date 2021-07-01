@@ -31,13 +31,13 @@ class PaintBoard{
 
     Tool(toolName){
         const newTool = toolMap[toolName];
-
         if(this.currentTool){
             this.currentTool.Quit()
                 .then(() => {
-                    newTool.Start.apply(this);
+                    this.currentTool = null
                 });
         } else{
+            this.currentTool = newTool
             newTool.Start.apply(this);
         }
     }

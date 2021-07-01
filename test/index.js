@@ -44,7 +44,7 @@ function Onload(){
                     let _ele = e.target;
 
                     if(_ele.classList.contains('active')){
-                        // _ele.classList.remove('active');
+                        _ele.classList.remove('active');
                         _ele.style.borderColor = 'transparent';
                         canvas.style.cursor = 'default';
                     } else{

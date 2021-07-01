@@ -12,11 +12,6 @@ export default ({ canvas, event }) => {
     x = logicalWidth * percentX
     y = logicalHeight * percentY
 
-    console.log(
-        percentX,
-        percentY
-    );
-
     return {
         x,
         y

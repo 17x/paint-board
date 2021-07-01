@@ -3,8 +3,12 @@ import CoordTransform from '../Utils/CoordTransform';
 import Stroke from '../Utils/Stroke';
 
 const PenTool = (() => {
+    let canvas = null;
+    let ctx = null;
+
     const Start = function(){
-        let { canvas, ctx } = this;
+        canvas = this.canvas;
+        ctx = this.ctx;
         const disabledSelection = (event) => {
             event.preventDefault();
         };
@@ -80,8 +84,12 @@ const PenTool = (() => {
         };
     };
 
+    // 
     const Quit = function(){
-        canvas['on' + eventsName[0]] = null;
+        return new Promise((resolve, reject) => {
+            canvas['on' + eventsName[0]] = null;
+            resolve();
+        });
     };
 
     return {
