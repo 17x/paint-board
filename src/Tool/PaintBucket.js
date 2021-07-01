@@ -55,6 +55,8 @@ const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
 
         if(wait){
             setTimeout(function(){
+                // console.log('SafeLock');
+                // console.count()
                 SafeLock();
             }, 0);
         } else{
