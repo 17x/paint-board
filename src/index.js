@@ -1,6 +1,6 @@
 import { isTouch, eventsName } from './Utils/Base';
 import PenTool from './Tool/Pen';
-// import PenTool from './Tool/Eraser';
+import Eraser from './Tool/Eraser';
 
 const toolMap = {
     pen : PenTool

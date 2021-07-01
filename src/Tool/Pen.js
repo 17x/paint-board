@@ -66,7 +66,7 @@ const PenTool = (() => {
             if(this.history){
                 this.isClean = false;
                 this.ClearRedoList();
-                // two operates interval less than 500ms
+                // two operates interval less than 1000ms
                 isContinuous = (Date.now() - lastMouseUpTimeStamp) < 1000;
             }
 
@@ -84,7 +84,6 @@ const PenTool = (() => {
         };
     };
 
-    // 
     const Quit = function(){
         return new Promise((resolve, reject) => {
             canvas['on' + eventsName[0]] = null;
