@@ -84,15 +84,14 @@ const Polygon = (() => {
         };
 
         const up = (event) => {
-            console.log();
             if(points.length === 0){
                 return;
             }
 
             if(!isTouch){
-                console.log('ev');
-                let { x, y } = points[points.length - 1];
                 console.log(points);
+                let { x, y } = points[points.length - 1];
+                // console.log(points);
                 // and set new end
                 points.push(
                     {
@@ -137,9 +136,6 @@ const Polygon = (() => {
                 if(points.length === 0){
                     // start and end
                     points.push(
-                        {
-                            ...currCoord
-                        },
                         {
                             ...currCoord
                         }

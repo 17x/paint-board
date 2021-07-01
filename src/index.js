@@ -15,7 +15,7 @@ const toolMap = {
 // line repair
 // redo and undo apply into polygon creation
 class PaintBoard{
-    lastMouseUpTimeStamp = null;
+    lastOperatingEnd = null;
     isContinuous = null;
     currentTool = null;
     strokeConfig = {
@@ -46,21 +46,26 @@ class PaintBoard{
     }
 
     OperatingStart(){
+        console.log('OperatingStart');
         /*if(this.history){
          this.isClean = false;
          this.ClearRedoList();
          // two operates interval less than 1000ms
-         isContinuous = (Date.now() - lastMouseUpTimeStamp) < 1000;
+         isContinuous = (Date.now() - lastOperatingEnd) < 1000;
          }*/
     }
 
-    Operating(){}
+    Operating(){
+        // console.log('Operating');
+
+    }
 
     OperatingEnd(){
-        this.lastMouseUpTimeStamp = Date.now();
+        console.log('OperatingEnd');
+        this.lastOperatingEnd = Date.now();
         /*if(this.history){
          this.Snapshot(isContinuous);
-         lastMouseUpTimeStamp = Date.now();
+         lastOperatingEnd = Date.now();
          }*/
     }
 
@@ -100,6 +105,41 @@ class PaintBoard{
          }
          */
     }
+
+    // take a snapshot
+    Snapshot(replace = false){
+        let historyItem = null;
+        // cleared
+        // console.log('Snapshot - isClean - ', this.isClean);
+        if(this.isClean){
+            historyItem = {
+                t : 'clear'
+            };
+
+        } else{
+            historyItem = {
+                time : Date.now(),
+                data : this.canvas.getContext('2d')
+                           .getImageData(0, 0, this.canvas.width, this.canvas.height).data
+            };
+        }
+
+        // replace
+        if(replace){
+            this.historyStack.pop();
+        }
+
+        // handle maximum to avoids overflow
+        if(this.historyStack.length >= this.historyMax){
+            this.historyStack.shift();
+            // console.log(this.historyStack.length);
+        }
+
+        this.historyStack.push(historyItem);
+        this.historyIndex = this.historyStack.length - 1;
+        // console.log(this.historyStack, this.historyIndex);
+    }
+
 }
 
 window.PaintBoard = PaintBoard;

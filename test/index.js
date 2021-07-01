@@ -7,8 +7,8 @@ function Onload(){
 
     let paintBoard = new PaintBoard({
         canvas,
-        logicalWidth : window.innerWidth * 1,
-        logicalHeight : window.innerWidth / 1.7,
+        logicalWidth : (window.innerWidth) * 1,
+        logicalHeight : (window.innerWidth) / 1.7,
         tools : [],
         enableHistory : true,
         historyMax : 10,
@@ -152,9 +152,10 @@ function Onload(){
 
         toolbar.append(toolbarDomItem);
     });
-
+    toolbar.appendChild(document.createElement('br'))
     toolbarConfig.tools.map(tool => {
         let toolbarDomItem = document.createElement('div');
+        toolbarDomItem.style.display = 'block';
         toolbarDomItem.style.width = '20px';
         toolbarDomItem.style.height = '20px';
         toolbarDomItem.style.marginLeft = '25px';
