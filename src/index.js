@@ -11,6 +11,7 @@ const toolMap = {
 
 // todo list
 // line repair
+// redo and undo apply into polygon creation
 class PaintBoard{
     lastMouseUpTimeStamp = null;
     isContinuous = null;
