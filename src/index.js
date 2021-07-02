@@ -23,7 +23,7 @@ class PaintBoard{
         strokeColor : '#000000'
     };
 
-    constructor({ canvas, strokeConfig = {}, clearColor = '#ffffff', clearRadius = 16, ...rest }){
+    constructor({ canvas, strokeConfig = {}, clearColor = '#ffffff', clearRadius = 16, enableHistory = false, historyMax = 10, ...rest }){
         this.props = rest;
 
         // operateCallback = null,
@@ -42,31 +42,14 @@ class PaintBoard{
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
 
+        if(enableHistory){
+            this.enableHistory = enableHistory;
+            this.historyMax = historyMax;
+            this.historyIndex = -1;
+            this.historyStack = [];
+        }
+
         this.Clear();
-    }
-
-    OperatingStart(){
-        console.log('OperatingStart');
-        /*if(this.history){
-         this.isClean = false;
-         this.ClearRedoList();
-         // two operates interval less than 1000ms
-         isContinuous = (Date.now() - lastOperatingEnd) < 1000;
-         }*/
-    }
-
-    Operating(){
-        // console.log('Operating');
-
-    }
-
-    OperatingEnd(){
-        console.log('OperatingEnd');
-        this.lastOperatingEnd = Date.now();
-        /*if(this.history){
-         this.Snapshot(isContinuous);
-         lastOperatingEnd = Date.now();
-         }*/
     }
 
     Tool(toolName){
@@ -87,23 +70,113 @@ class PaintBoard{
         }
     }
 
+    Method(methodName){
+        if(this.currentTool && this.currentTool.name === 'polygon'){
+            this.currentTool.Quit();
+        }
+
+        methodName = methodName.substr(0,1).toUpperCase() + methodName.substr(1,methodName.length)
+        this[methodName]()
+    }
+
+    OperatingStart(){
+        console.log('OperatingStart');
+        if(this.enableHistory){
+            this.isClean = false;
+            this.ClearRedoList();
+            // two operates interval less than 1000ms
+            this.isContinuous = (Date.now() - this.lastOperatingEnd) < 1000;
+        }
+    }
+
+    Operating(){
+        // console.log('Operating');
+
+    }
+
+    OperatingEnd(){
+        console.log('OperatingEnd');
+        this.lastOperatingEnd = Date.now();
+        if(this.enableHistory){
+            this.Snapshot(this.isContinuous);
+            this.lastOperatingEnd = Date.now();
+        }
+    }
+
     Clear(){
-        this.ctx.fillStyle = '#ffffff';
+        this.CleanBoard();
+
+        if(this.enableHistory){
+            // this.isClean = true;
+            this.ClearRedoList();
+
+            let lastOne = this.historyStack[this.historyIndex];
+
+            if(lastOne && lastOne.t === 'clear'){
+                return;
+            }
+
+            this.historyIndex += 1;
+            this.Snapshot();
+        }
+    }
+
+    // for canvas
+    CleanBoard(){
+        this.ctx.save()
+        this.ctx.fillStyle = this.clearColor
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.isClean = true;
+        this.ctx.restore();
+    }
 
-        /*
-         if(this.enableHistory){
-         this.ClearRedoList();
+    ClearRedoList(){
+        this.historyStack.length = this.historyIndex + 1;
+    }
 
-         let _b = false;
+    ApplyHistory(){
+        let handleData = this.historyStack[this.historyIndex];
 
-         if(this.historyIndex > -1){
-         _b = this.historyStack[this.historyIndex].t === 'clear';
-         }
-         this.Snapshot(_b);
-         }
-         */
+        if(handleData){
+            if(handleData.t === 'init' || handleData.t === 'clear'){
+                his.CleanBoard();
+                this.isClean = true;
+            } else{
+                let imageData = new ImageData(handleData.data, this.canvas.width, this.canvas.height);
+                this.ctx.putImageData(imageData, 0, 0);
+            }
+        }
+    }
+
+    Undo(){
+        if(!this.enableHistory || this.historyStack.length === 0){
+            return
+        }
+        console.log('Undo');
+
+        this.historyIndex -= 1;
+
+        if(this.historyIndex < 0){
+            this.historyIndex = 0;
+        }
+
+        this.ApplyHistory();
+
+        console.log(this.historyIndex);
+    }
+
+    Redo(){
+        if(!this.enableHistory || this.historyStack.length === 0){
+            return
+        }
+
+
+        this.historyIndex += 1;
+
+        if(this.historyIndex > this.historyStack.length - 1){
+            this.historyIndex = this.historyStack.length - 1;
+        } else{
+            this.ApplyHistory();
+        }
     }
 
     // take a snapshot

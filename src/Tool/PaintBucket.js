@@ -1,6 +1,7 @@
 import { isTouch, eventsName } from '../Utils/Base';
 import CoordTransform from '../Utils/CoordTransform';
-import Stroke from '../Utils/Stroke';
+
+let controlFlag = false;
 
 const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
     let x = Math.round(currCoord.x);
@@ -19,6 +20,7 @@ const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
     let wait = false;
     let sum = null;
 
+    controlFlag = false;
     inputColor = hexToRgbA(inputColor);
 
     let d1 = CompareColor(
@@ -48,6 +50,10 @@ const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
         sum = 500;
         todoArr = [];
 
+        if(controlFlag){
+            throw new Error('User interrupt');
+        }
+
         for(let item of tmp){
             let [x, y] = item;
             Do(x, y);
@@ -60,6 +66,7 @@ const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
                 SafeLock();
             }, 0);
         } else{
+            console.log(Object.keys(pathMap).length);
             ctx.putImageData(imageData, 0, 0);
             cb && cb('done');
         }
@@ -67,6 +74,9 @@ const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
 
     // do
     function Do(x, y){
+        if(controlFlag){
+            return;
+        }
         if(pathMap[x + '_' + y]){
             pathMap[x + '_' + y]++;
         }
@@ -219,6 +229,7 @@ const PaintBucket = (() => {
     };
 
     const Quit = function(){
+        controlFlag = true;
         canvas['on' + eventsName[0]] = null;
     };
 

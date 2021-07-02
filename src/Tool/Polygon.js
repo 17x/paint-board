@@ -194,6 +194,7 @@ const Polygon = (() => {
     };
 
     return {
+        name : 'polygon',
         Start,
         Quit
     };
