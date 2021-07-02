@@ -138,7 +138,7 @@ class PaintBoard{
 
         if(handleData){
             if(handleData.t === 'init' || handleData.t === 'clear'){
-                his.CleanBoard();
+                this.CleanBoard();
                 this.isClean = true;
             } else{
                 let imageData = new ImageData(handleData.data, this.canvas.width, this.canvas.height);
