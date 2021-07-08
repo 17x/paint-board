@@ -8,6 +8,7 @@ const Polygon = (() => {
     let points = [];
     let that = null;
     let cloneCanvas = null;
+    let isClean = true
 
     const CloneCanvas = (origin) => {
         let target = document.createElement('canvas');
@@ -142,7 +143,11 @@ const Polygon = (() => {
                     );
                 }
             }
-
+            // first operating in polygon mode
+            if(isClean){
+                this.OperatingStart();
+                isClean = false
+            }
             document.addEventListener('selectstart', disabledSelection);
             document.addEventListener(eventsName[2], up);
         };
@@ -183,10 +188,15 @@ const Polygon = (() => {
         points.length = 0;
     };
 
+    const UpdateClone = () => {
+        cloneCanvas = CloneCanvas(that.canvas);
+    }
+
     const Quit = function(){
-        FinishDraw()
+        FinishDraw();
         canvas.oncontextmenu = null;
         canvas['on' + eventsName[0]] = null;
+
 
         if(!isTouch){
             document.removeEventListener(eventsName[1], HandleMove);
@@ -196,7 +206,8 @@ const Polygon = (() => {
     return {
         name : 'polygon',
         Start,
-        Quit
+        Quit,
+        UpdateClone
     };
 })();
 

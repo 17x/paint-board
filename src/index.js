@@ -1,4 +1,3 @@
-import { isTouch, eventsName } from './Utils/Base';
 import Pen from './Tool/Pen';
 import Eraser from './Tool/Eraser';
 import Polygon from './Tool/Polygon';
@@ -71,12 +70,17 @@ class PaintBoard{
     }
 
     Method(methodName){
-        if(this.currentTool && this.currentTool.name === 'polygon'){
-            this.currentTool.Quit();
-        }
+        /* if(this.currentTool && this.currentTool.name === 'polygon'){
+         this.currentTool.Quit();
+         }*/
 
-        methodName = methodName.substr(0,1).toUpperCase() + methodName.substr(1,methodName.length)
-        this[methodName]()
+        methodName = methodName.substr(0, 1)
+                               .toUpperCase() + methodName.substr(1, methodName.length);
+        this[methodName]();
+
+        if(this.currentTool && this.currentTool.name === 'polygon'){
+            this.currentTool.UpdateClone();
+        }
     }
 
     OperatingStart(){
@@ -123,14 +127,15 @@ class PaintBoard{
 
     // for canvas
     CleanBoard(){
-        this.ctx.save()
-        this.ctx.fillStyle = this.clearColor
+        this.ctx.save();
+        this.ctx.fillStyle = this.clearColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.restore();
     }
 
     ClearRedoList(){
         this.historyStack.length = this.historyIndex + 1;
+        console.log(this.historyStack);
     }
 
     ApplyHistory(){
@@ -149,7 +154,7 @@ class PaintBoard{
 
     Undo(){
         if(!this.enableHistory || this.historyStack.length === 0){
-            return
+            return;
         }
         console.log('Undo');
 
@@ -166,9 +171,8 @@ class PaintBoard{
 
     Redo(){
         if(!this.enableHistory || this.historyStack.length === 0){
-            return
+            return;
         }
-
 
         this.historyIndex += 1;
 
@@ -213,6 +217,20 @@ class PaintBoard{
         // console.log(this.historyStack, this.historyIndex);
     }
 
+    SaveData(returnType = 'arraybuffer', cb){
+        if(returnType === 'file'){
+            this.canvas.toBlob((blob) => {
+                let file = new File([blob], 'user-board.png', { lastModified : new Date() });
+                cb(file);
+            }, 'image/png');
+        } else if(returnType === 'arraybuffer'){
+            let { width, height } = this.props;
+            let imageData = this.ctx.getImageData(0, 0, width, height);
+            return imageData.data.buffer;
+        } else if(returnType === 'base64'){
+            return this.canvas.toDataURL('image/png');
+        }
+    }
 }
 
 window.PaintBoard = PaintBoard;

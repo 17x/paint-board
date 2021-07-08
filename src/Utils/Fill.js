@@ -8,6 +8,9 @@ export default ({ type, ctx, fillStyle, param }) => {
 
     if(type === 'circle'){
         fillEllipse(ctx, param);
+    } else if(type === 'rect'){
+        let { x, y, w, h } = param;
+        ctx.fillRect(x, y, w, h);
     }
 
     ctx.fill();
