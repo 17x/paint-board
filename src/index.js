@@ -10,9 +10,6 @@ const toolMap = {
     paintBucket : PaintBucket
 };
 
-// todo list
-// line repair
-// redo and undo apply into polygon creation
 class PaintBoard{
     lastOperatingEnd = null;
     isContinuous = null;
