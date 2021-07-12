@@ -233,15 +233,19 @@ async function Onload(){
     document.body.append(canvas, toolbar);
 
     file.onclick = () => {
-        paintBoard.SaveData('file', (file) => {
-            console.log('file', file);
+        paintBoard.SaveData({
+            returnType : 'file',
+            compBg : true,
+            cb : (file) => {
+                // console.log('file', file);
+            }
         });
     };
 
     arraybuffer.onclick = () => {
         console.log(
             'arraybuffer',
-            paintBoard.SaveData('arraybuffer')
+            paintBoard.SaveData({ returnType : 'arraybuffer' })
         );
 
     };
@@ -249,7 +253,7 @@ async function Onload(){
     base64.onclick = () => {
         console.log(
             'base64',
-            paintBoard.SaveData('base64')
+            paintBoard.SaveData({ returnType : 'base64' })
         );
 
     };

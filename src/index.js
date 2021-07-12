@@ -38,10 +38,10 @@ class PaintBoard{
             let { image, color } = background;
 
             canvas.style.background = `${ color || '' } url(${ image.src }) 0 0 no-repeat`;
-            canvas.style.backgroundSize = 'contain'
+            canvas.style.backgroundSize = 'contain';
             // canvas.style.backgroundPosition = '100% 100%'
         }
-
+        this.background = background;
         this.clearColor = clearColor;
         this.clearRadius = clearRadius;
         this.canvas = canvas;
@@ -135,9 +135,9 @@ class PaintBoard{
     CleanBoard(){
         this.ctx.save();
         if(this.clearColor === 'transparent'){
-            this.ctx.fillStyle = '#fff';
+            this.ctx.fillStyle = '#ffffff';
             this.ctx.globalCompositeOperation = 'destination-out';
-        }else{
+        } else{
             this.ctx.fillStyle = this.clearColor;
         }
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -228,18 +228,38 @@ class PaintBoard{
         // console.log(this.historyStack, this.historyIndex);
     }
 
-    SaveData(returnType = 'arraybuffer', cb){
+    SaveData({ returnType = 'arraybuffer', compBg = false, cb }){
+        let saveCanvas;
+        let { logicalWidth, logicalHeight } = this.props;
+
+        if(compBg){
+            let { image } = this.background;
+            let ctx;
+
+            // debugger
+            saveCanvas = document.createElement('canvas');
+            saveCanvas.width = logicalWidth;
+            saveCanvas.height = logicalHeight;
+            ctx = saveCanvas.getContext('2d');
+            // cover
+            ctx.drawImage(image, 0, 0, logicalWidth, logicalHeight);
+            ctx.drawImage(this.canvas, 0, 0, logicalWidth, logicalHeight);
+
+            document.body.appendChild(saveCanvas);
+        } else{
+            saveCanvas = this.canvas;
+        }
+
         if(returnType === 'file'){
-            this.canvas.toBlob((blob) => {
+            saveCanvas.toBlob((blob) => {
                 let file = new File([blob], 'user-board.png', { lastModified : new Date() });
                 cb(file);
             }, 'image/png');
         } else if(returnType === 'arraybuffer'){
-            let { width, height } = this.props;
-            let imageData = this.ctx.getImageData(0, 0, width, height);
+            let imageData = this.ctx.getImageData(0, 0, logicalWidth, logicalHeight);
             return imageData.data.buffer;
         } else if(returnType === 'base64'){
-            return this.canvas.toDataURL('image/png');
+            return saveCanvas.toDataURL('image/png');
         }
     }
 }
