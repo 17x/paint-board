@@ -62,8 +62,9 @@ class PaintBoard{
 
         // check enabled tool
         if(this.currentTool){
+            this.currentTool.Quit();
+
             if(this.currentTool === newTool){
-                this.currentTool.Quit();
                 this.currentTool = null;
             } else{
                 this.currentTool = newTool;

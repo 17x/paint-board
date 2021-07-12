@@ -1,7 +1,9 @@
 import { isTouch, eventsName } from '../Utils/Base';
 import CoordTransform from '../Utils/CoordTransform';
 
+// set this value true to stop tasks
 let controlFlag = false;
+let DBWorking = false;
 
 const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
     let x = Math.round(currCoord.x);
@@ -20,6 +22,12 @@ const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
     let wait = false;
     let sum = null;
 
+
+    if(DBWorking){
+        console.warn('task running.');
+        return
+    }
+    DBWorking = true
     controlFlag = false;
     inputColor = hexToRgbA(inputColor);
 
@@ -51,6 +59,7 @@ const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
         todoArr = [];
 
         if(controlFlag){
+            DBWorking = false
             throw new Error('User interrupt');
         }
 
@@ -66,7 +75,8 @@ const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
                 SafeLock();
             }, 0);
         } else{
-            console.log(Object.keys(pathMap).length);
+            // console.log(Object.keys(pathMap).length);
+            DBWorking = false
             ctx.putImageData(imageData, 0, 0);
             cb && cb('done');
         }
