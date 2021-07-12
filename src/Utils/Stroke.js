@@ -4,7 +4,14 @@ export default ({ ctx, start, end, strokeWidth = 1, strokeColor = '#000000', ant
         ctx.beginPath();
         ctx.lineCap = 'round';
         ctx.lineWidth = strokeWidth;
-        ctx.strokeStyle = strokeColor;
+
+        if(strokeColor === 'transparent'){
+            ctx.strokeStyle = '#ffffff';
+            ctx.globalCompositeOperation = 'destination-out';
+        } else{
+            ctx.strokeStyle = strokeColor;
+        }
+
         ctx.moveTo(start.x, start.y);
         ctx.lineTo(end.x, end.y);
         ctx.stroke();

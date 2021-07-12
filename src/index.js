@@ -19,7 +19,7 @@ class PaintBoard{
         strokeColor : '#000000'
     };
 
-    constructor({ canvas, strokeConfig = {}, clearColor = '#ffffff', clearRadius = 16, enableHistory = false, historyMax = 10, ...rest }){
+    constructor({ canvas, strokeConfig = {}, clearColor = '#ffffff', clearRadius = 16, enableHistory = false, historyMax = 10, background, ...rest }){
         this.props = rest;
 
         // operateCallback = null,
@@ -32,6 +32,15 @@ class PaintBoard{
         canvas.width = props.logicalWidth;
         canvas.height = props.logicalHeight;
         Object.assign(this.strokeConfig, strokeConfig);
+
+        // 背景图
+        if(background){
+            let { image, color } = background;
+
+            canvas.style.background = `${ color || '' } url(${ image.src }) 0 0 no-repeat`;
+            canvas.style.backgroundSize = 'contain'
+            // canvas.style.backgroundPosition = '100% 100%'
+        }
 
         this.clearColor = clearColor;
         this.clearRadius = clearRadius;
@@ -81,7 +90,7 @@ class PaintBoard{
     }
 
     OperatingStart(){
-        console.log('OperatingStart');
+        // console.log('OperatingStart');
         if(this.enableHistory){
             this.isClean = false;
             this.ClearRedoList();
@@ -96,7 +105,7 @@ class PaintBoard{
     }
 
     OperatingEnd(){
-        console.log('OperatingEnd');
+        // console.log('OperatingEnd');
         this.lastOperatingEnd = Date.now();
         if(this.enableHistory){
             this.Snapshot(this.isContinuous);
@@ -125,14 +134,19 @@ class PaintBoard{
     // for canvas
     CleanBoard(){
         this.ctx.save();
-        this.ctx.fillStyle = this.clearColor;
+        if(this.clearColor === 'transparent'){
+            this.ctx.fillStyle = '#fff';
+            this.ctx.globalCompositeOperation = 'destination-out';
+        }else{
+            this.ctx.fillStyle = this.clearColor;
+        }
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.restore();
     }
 
     ClearRedoList(){
         this.historyStack.length = this.historyIndex + 1;
-        console.log(this.historyStack);
+        // console.log(this.historyStack);
     }
 
     ApplyHistory(){

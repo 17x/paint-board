@@ -3,9 +3,14 @@ const fillEllipse = (ctx, { x, y, radiusX, radiusY, rotation = Math.PI * 2, star
 };
 
 export default ({ type, ctx, fillStyle, param }) => {
+    ctx.save()
     ctx.beginPath();
-    ctx.fillStyle = fillStyle;
-
+    if(fillStyle === 'transparent'){
+        ctx.fillStyle = '#fff';
+        ctx.globalCompositeOperation = 'destination-out';
+    }else{
+        ctx.fillStyle = fillStyle;
+    }
     if(type === 'circle'){
         fillEllipse(ctx, param);
     } else if(type === 'rect'){
@@ -14,4 +19,5 @@ export default ({ type, ctx, fillStyle, param }) => {
     }
 
     ctx.fill();
+    ctx.restore()
 }

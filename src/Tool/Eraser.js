@@ -31,18 +31,6 @@ const Eraser = (() => {
 
             this.Operating();
 
-            Fill({
-                ctx,
-                type : 'circle',
-                fillStyle : clearColor,
-                param : {
-                    x : currCoord.x,
-                    y : currCoord.y,
-                    radiusX : clearRadius,
-                    radiusY : clearRadius
-                }
-            });
-
             if(lastCoord){
                 Stroke({
                     start : lastCoord,
@@ -50,6 +38,18 @@ const Eraser = (() => {
                     ctx,
                     strokeWidth : clearRadius * 2,
                     strokeColor : clearColor
+                });
+            } else{
+                Fill({
+                    ctx,
+                    type : 'circle',
+                    fillStyle : clearColor,
+                    param : {
+                        x : currCoord.x,
+                        y : currCoord.y,
+                        radiusX : clearRadius,
+                        radiusY : clearRadius
+                    }
                 });
             }
 
