@@ -30,11 +30,11 @@ async function Onload(){
         tools : [],
         enableHistory : true,
         historyMax : 10,
-        background : {
+/*        background : {
             color : '#fff',
             image : img,
             type : 'css' // draw
-        },
+        },*/
         clearColor : 'transparent'
         // clearColor : 'blue',
     });
