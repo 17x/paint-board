@@ -102,6 +102,10 @@ const Polygon = (() => {
                 );
             }
 
+            if(points.length > 3){
+               this.OperatingEnd();
+            }
+
             Render();
 
             document.removeEventListener('selectstart', disabledSelection);
