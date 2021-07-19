@@ -1,10 +1,12 @@
 import Pen from './Tool/Pen';
+import Line from './Tool/Line';
 import Eraser from './Tool/Eraser';
 import Polygon from './Tool/Polygon';
 import PaintBucket from './Tool/PaintBucket';
 
 const toolMap = {
     pen : Pen,
+    line : Line,
     eraser : Eraser,
     polygon : Polygon,
     paintBucket : PaintBucket

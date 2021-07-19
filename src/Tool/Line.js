@@ -1,0 +1,197 @@
+import { isTouch, eventsName } from '../Utils/Base';
+import CoordTransform from '../Utils/CoordTransform';
+import Stroke from '../Utils/Stroke';
+import Fill from '../Utils/Fill';
+
+const Line = (() => {
+    let canvas = null;
+    let ctx = null;
+    let points = [];
+    let that = null;
+    let cloneCanvas = null;
+    let isClean = true;
+
+    const CloneCanvas = (origin) => {
+        let target = document.createElement('canvas');
+        let cvs = target.getContext('2d');
+
+        target.width = origin.width;
+        target.height = origin.height;
+
+        cvs.drawImage(origin, 0, 0);
+
+        return target;
+    };
+
+    const HandleMove = (event) => {
+        if(points.length > 0){
+            let x = isTouch ? event.touches[0].pageX : event.x;
+            let y = isTouch ? event.touches[0].pageY : event.y;
+            let currCoord = CoordTransform({
+                canvas,
+                event : {
+                    x,
+                    y
+                }
+            });
+            let endPoint = points[points.length - 1];
+
+            endPoint.x = currCoord.x;
+            endPoint.y = currCoord.y;
+            Render();
+        }
+    };
+
+    const Render = () => {
+        let { strokeWidth, strokeColor } = that.strokeConfig;
+        let { width, height } = that.canvas;
+        let start = points[0];
+        let end = points[1];
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(cloneCanvas, 0, 0);
+
+        if(start){
+            if(!end){
+                Fill({
+                    ctx,
+                    type : 'circle',
+                    fillStyle : '#000000',
+                    param : {
+                        x : start.x,
+                        y : start.y,
+                        radiusX : 1,
+                        radiusY : 1
+                    }
+                });
+            } else{
+                if(!end){
+                    Fill({
+                        ctx,
+                        type : 'circle',
+                        fillStyle : '#000000',
+                        param : {
+                            x : start.x,
+                            y : start.y,
+                            radiusX : 1,
+                            radiusY : 1
+                        }
+                    });
+                } else{
+                    Stroke({
+                        ctx,
+                        start,
+                        end,
+                        strokeWidth,
+                        strokeColor
+                    });
+                }
+                Stroke({
+                    ctx,
+                    start,
+                    end,
+                    strokeWidth,
+                    strokeColor
+                });
+            }
+        }
+    };
+
+    const Start = function(){
+        // create a local snapshot
+        cloneCanvas = CloneCanvas(this.canvas);
+        points = [];
+        that = this;
+        canvas = this.canvas;
+        ctx = this.ctx;
+
+        const disabledSelection = (event) => {
+            event.preventDefault();
+        };
+
+        const up = () => {
+            if(points.length === 2){
+                isClean = true;
+                points.length = 0;
+                this.OperatingEnd();
+                UpdateClone();
+            }
+
+            document.removeEventListener('selectstart', disabledSelection);
+            document.removeEventListener(eventsName[2], up);
+            document.removeEventListener(eventsName[1], HandleMove);
+        };
+
+        // gesture start
+        canvas['on' + eventsName[0]] = (event) => {
+            // non-touch device and non-left-click
+            // prevent
+            if(!isTouch && event.buttons !== 1){
+                return;
+            }
+
+            let x = isTouch ? event.touches[0].pageX : event.x;
+            let y = isTouch ? event.touches[0].pageY : event.y;
+            let coord = CoordTransform({
+                canvas,
+                event : {
+                    x,
+                    y
+                }
+            });
+
+            // first operating
+            if(isClean){
+                this.OperatingStart();
+                isClean = false;
+            }
+            points.push(coord);
+
+            Render();
+
+            document.addEventListener('selectstart', disabledSelection);
+            document.addEventListener(eventsName[2], up);
+            document.addEventListener(eventsName[1], HandleMove);
+
+        };
+
+        // finish current polygon draw
+        // and start a new one
+        canvas.oncontextmenu = (event) => {
+            event.preventDefault();
+            CancelDraw();
+            this.OperatingEnd();
+
+            // update clone canvas
+            cloneCanvas = CloneCanvas(canvas);
+        };
+
+    };
+
+    const CancelDraw = () => {
+        points.length = 0;
+        Render();
+    };
+
+    const UpdateClone = () => {
+        cloneCanvas = CloneCanvas(that.canvas);
+    };
+
+    const Quit = function(){
+        CancelDraw();
+        canvas.oncontextmenu = null;
+        canvas['on' + eventsName[0]] = null;
+
+        if(!isTouch){
+            document.removeEventListener(eventsName[1], HandleMove);
+        }
+    };
+
+    return {
+        name : 'polygon',
+        Start,
+        Quit,
+        UpdateClone
+    };
+})();
+
+export default Line;
