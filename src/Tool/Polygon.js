@@ -84,7 +84,7 @@ const Polygon = (() => {
             event.preventDefault();
         };
 
-        const up = (event) => {
+        const up = () => {
             if(points.length === 0){
                 return;
             }
