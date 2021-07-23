@@ -25,70 +25,56 @@ paintBoard.Tool('pen');
 - [basic usage](https://17x.github.io/paint-board-demo/basic)
 - [enable history](https://17x.github.io/paint-board-demo/history)
 - [load background, transparency back and optional output](https://17x.github.io/paint-board-demo/bg-and-clear)
-- [more tools]()
+- [more tools](https://17x.github.io/paint-board-demo/more-tools)
 
 ---
 
 ### configs
 
-**`canvas`** 
-
-HTMLCanvasElement
+##### canvas `HTMLCanvasElement`
 
 destination output
 
-**`logicalWidth`** Number
+##### logicalWidth `Number`
 
 canvas resolution width
 
-
-
-**`logicalHeight`** Number
+##### logicalHeight `Number`
 
 canvas resolution height
 
-
-
-**`strokeConfig`** Object
-
-​	contains
-
-- **`strokeWidth`** Number
-   line width to init
-- **`strokeColor`** String
-   line color to init
-
-
-
-**`background`** Object
+##### strokeConfig `Object`
 
 contains
 
-- **`color`** String
+- strokeWidth **`Number`**
 
-- **`image`** HTMLImageElement
+   line width to init
+- strokeColor **`String`**
 
+   line color to init
 
+##### background `Object`
 
-**`enableHistory`** Boolean
+contains
+
+- color **`String`**
+
+- image **`HTMLImageElement`**
+
+##### enableHistory `Boolean`
 
 enable history
 
-
-
-**`historyMax`** Number
+##### historyMax `Number`
 
 history record stack max length
 
+##### clearColor `String`
 
+if you do wanna do  **real clear** , just set its value to **transparent**
 
-**`clearColor`** String
-
-if you wanna do  **real clear** , just set its value to **transparent**
-
-
-
-**`clearRadius`** Number
+##### clearRadius `Number`
 
 actually clear is not a line but a dot.
 
@@ -101,7 +87,7 @@ INSTANCE.Method(CODE)
 
 
 
-**`Undo`**
+##### Undo
 
 Apply last one (base on current history index) history record
 
@@ -109,7 +95,7 @@ Apply last one (base on current history index) history record
 
 
 
-**`Redo`**
+##### Redo
 
 Apply next one (base on current history index) history record
 
@@ -117,7 +103,7 @@ Apply next one (base on current history index) history record
 
 
 
-**`clear`**
+##### clear
 
 Clean canvas
 
@@ -129,49 +115,44 @@ Clean canvas
 
 INSTANCE.Tool(CODE)
 
-**`pen`**
+##### pen
 
-**`line`**
+##### line
 
-**`polygon`**
+##### polygon
 
-**`eraser`**
+##### eraser
 
 ---
 
 ### Other
 
-**`SaveData`** Function with one object parameter
+##### SaveData Function 
+with one `Object` parameter that contains
 
-that object contains
+  - `returnType` **`String`**
 
-- **`returnType`** String
-
-  arraybuffer
-
-  beware arraybuffer do not contains metadata or other infos but only pixels data.
-
+      - arraybuffer
+    
+        beware arraybuffer do not contains metadata or other infos but only pixels data.  
+      return Buffer
+    
+      - file
+    
+        This return a **real file** that like you choose a file from local.
+    
+        you need combine use the cb parameter.  
+    
+      - base64
+    
+        return **`String`**
   
 
-  file
-
-  This return a **real file** that like you choose a file from local.
-
-  you need combine use the cb parameter.
-
-  
-
-  base64
-
-  return string
-
-  
-
-- **`compBg`** Boolean
+  - `compBg` **`Boolean`**
 
   represent the output will be blend with background image (in the config).
 
-- **`cb`** Function
+  - `cb` **`Function`**
 
-  callback for **returnType : 'file'** since this is an asynchronously action.
+  callback for **returnType : 'file'** since this is an asynchronous action.
 
