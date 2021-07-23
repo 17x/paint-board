@@ -90,7 +90,7 @@ const Polygon = (() => {
             }
 
             if(!isTouch){
-                console.log(points);
+                // console.log(points);
                 let { x, y } = points[points.length - 1];
                 // console.log(points);
                 // and set new end

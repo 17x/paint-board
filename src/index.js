@@ -170,7 +170,6 @@ class PaintBoard{
         if(!this.enableHistory || this.historyStack.length === 0){
             return;
         }
-        console.log('Undo');
 
         this.historyIndex -= 1;
 
@@ -179,8 +178,6 @@ class PaintBoard{
         }
 
         this.ApplyHistory();
-
-        console.log(this.historyIndex);
     }
 
     Redo(){
@@ -248,7 +245,7 @@ class PaintBoard{
             ctx.drawImage(image, 0, 0, logicalWidth, logicalHeight);
             ctx.drawImage(this.canvas, 0, 0, logicalWidth, logicalHeight);
 
-            document.body.appendChild(saveCanvas);
+            // document.body.appendChild(saveCanvas);
         } else{
             saveCanvas = this.canvas;
         }

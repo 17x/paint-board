@@ -44,7 +44,7 @@ const DumpBucket = ({ ctx, currCoord, inputColor, cb }) => {
     try{
         SafeLock();
     } catch(e){
-        console.log(e);
+        // console.log(e);
         cb && cb(e);
     } finally{
         // console.log(Object.keys(pathMap).length);
@@ -229,7 +229,7 @@ const PaintBucket = (() => {
                 currCoord : coord,
                 ctx,
                 cb : (msg) => {
-                    console.log('msg in cb', msg);
+                    // console.log('msg in cb', msg);
 
                     _bucketWorking = false;
                     this.OperatingEnd();
