@@ -2,7 +2,7 @@
 
 
 
-#### basic usage
+### basic usage
 
 ```js
 let paintBoard = new PaintBoard({
@@ -18,89 +18,90 @@ let paintBoard = new PaintBoard({
 paintBoard.Tool('pen');
 ```
 
+---
 
-
-#### Demo List
+### Demo List
 
 - [basic usage](https://17x.github.io/paint-board-demo/basic)
 - [enable history](https://17x.github.io/paint-board-demo/history)
 - [load background, transparency back and optional output](https://17x.github.io/paint-board-demo/bg-and-clear)
-
 - [more tools]()
 
-#### configs
+---
 
-`canvas` HTMLCanvasElement
+### configs
+
+**`canvas`** 
+
+HTMLCanvasElement
 
 destination output
 
-
-
-`logicalWidth` Number
+**`logicalWidth`** Number
 
 canvas resolution width
 
 
 
-`logicalHeight` Number
+**`logicalHeight`** Number
 
 canvas resolution height
 
 
 
-`strokeConfig` Object
+**`strokeConfig`** Object
 
-contains
+​	contains
 
-- `strokeWidth` Number
+- **`strokeWidth`** Number
    line width to init
-- `strokeColor` String
+- **`strokeColor`** String
    line color to init
 
 
 
-`background` Object
+**`background`** Object
 
 contains
 
-- `color` String
+- **`color`** String
 
-- `image` HTMLImageElement
+- **`image`** HTMLImageElement
 
 
 
-`enableHistory` Boolean
+**`enableHistory`** Boolean
 
 enable history
 
 
 
-`historyMax` Number
+**`historyMax`** Number
 
 history record stack max length
 
 
 
-`clearColor` String
+**`clearColor`** String
 
 if you wanna do  **real clear** , just set its value to **transparent**
 
 
 
-`clearRadius` Number
+**`clearRadius`** Number
 
 actually clear is not a line but a dot.
 
+---
 
 
-
-#### Method codes
+### Method codes
 
 INSTANCE.Method(CODE)
 
 
 
-`Undo`
+**`Undo`**
 
 Apply last one (base on current history index) history record
 
@@ -108,7 +109,7 @@ Apply last one (base on current history index) history record
 
 
 
-`Redo`
+**`Redo`**
 
 Apply next one (base on current history index) history record
 
@@ -116,33 +117,35 @@ Apply next one (base on current history index) history record
 
 
 
-`clear`
+**`clear`**
 
 Clean canvas
 
 
 
-#### Tool codes
+---
+
+### Tool codes
 
 INSTANCE.Tool(CODE)
 
-`pen`
+**`pen`**
 
-`line`
+**`line`**
 
-`polygon`
+**`polygon`**
 
-`eraser`
+**`eraser`**
 
+---
 
+### Other
 
-#### Other
-
-`SaveData` Function with one object parameter
+**`SaveData`** Function with one object parameter
 
 that object contains
 
-- `returnType` String
+- **`returnType`** String
 
   arraybuffer
 
@@ -164,11 +167,11 @@ that object contains
 
   
 
-- `compBg` Boolean
+- **`compBg`** Boolean
 
   represent the output will be blend with background image (in the config).
 
-- `cb` Function
+- **`cb`** Function
 
   callback for **returnType : 'file'** since this is an asynchronously action.
 
