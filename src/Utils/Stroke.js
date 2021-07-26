@@ -1,4 +1,5 @@
 export default ({ ctx, start, end, strokeWidth = 1, strokeColor = '#000000', antiAliasing = false }) => {
+    ctx.save()
     // anti-aliasing, increase max to repeatedly render
     for(let i = 0; i < 1; i++){
         ctx.beginPath();
@@ -16,4 +17,5 @@ export default ({ ctx, start, end, strokeWidth = 1, strokeColor = '#000000', ant
         ctx.lineTo(end.x, end.y);
         ctx.stroke();
     }
+    ctx.restore();
 }

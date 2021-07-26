@@ -149,9 +149,9 @@ const Line = (() => {
 
             Render();
 
+            document.addEventListener(eventsName[1], HandleMove, { passive : false });
             document.addEventListener('selectstart', disabledSelection);
             document.addEventListener(eventsName[2], up);
-            document.addEventListener(eventsName[1], HandleMove, { passive : false });
 
         };
 
