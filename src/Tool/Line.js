@@ -40,6 +40,7 @@ const Line = (() => {
             endPoint.y = currCoord.y;
             Render();
         }
+        event.preventDefault();
     };
 
     const Render = () => {
@@ -150,7 +151,7 @@ const Line = (() => {
 
             document.addEventListener('selectstart', disabledSelection);
             document.addEventListener(eventsName[2], up);
-            document.addEventListener(eventsName[1], HandleMove);
+            document.addEventListener(eventsName[1], HandleMove, { passive : false });
 
         };
 

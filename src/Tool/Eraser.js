@@ -54,6 +54,7 @@ const Eraser = (() => {
             }
 
             lastCoord = currCoord;
+            event.preventDefault();
         };
 
         const up = () => {
@@ -91,7 +92,7 @@ const Eraser = (() => {
                 }
             });
 
-            document.addEventListener(eventsName[1], move);
+            document.addEventListener(eventsName[1], move, { passive : false });
             document.addEventListener('selectstart', disabledSelection);
             document.addEventListener(eventsName[2], up);
         };
