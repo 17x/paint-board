@@ -1,4 +1,5 @@
 import Pen from './Tool/Pen';
+import Text from './Tool/Text';
 import Line from './Tool/Line';
 import Eraser from './Tool/Eraser';
 import Polygon from './Tool/Polygon';
@@ -6,6 +7,7 @@ import PaintBucket from './Tool/PaintBucket';
 
 const toolMap = {
     pen : Pen,
+    text : Text,
     line : Line,
     eraser : Eraser,
     polygon : Polygon,
@@ -21,7 +23,17 @@ class PaintBoard{
         strokeColor : '#000000'
     };
 
-    constructor({ canvas, strokeConfig = {}, clearColor = '#ffffff', clearRadius = 16, enableHistory = false, historyMax = 10, background, ...rest }){
+    constructor({
+        canvas,
+        strokeConfig = {},
+        clearColor = '#ffffff',
+        clearRadius = 16,
+        enableHistory = false,
+        historyMax = 10,
+        historyInterval = 500,
+        background,
+        ...rest
+    }){
         this.props = rest;
 
         // operateCallback = null,
@@ -35,7 +47,6 @@ class PaintBoard{
         canvas.height = props.logicalHeight;
         Object.assign(this.strokeConfig, strokeConfig);
 
-        // 背景图
         if(background){
             let { image, color } = background;
 
@@ -45,6 +56,7 @@ class PaintBoard{
         }
         this.background = background;
         this.clearColor = clearColor;
+        this.historyInterval = historyInterval;
         this.clearRadius = clearRadius;
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
@@ -98,7 +110,7 @@ class PaintBoard{
             this.isClean = false;
             this.ClearRedoList();
             // two operates interval less than 1000ms
-            this.isContinuous = (Date.now() - this.lastOperatingEnd) < 1000;
+            this.isContinuous = (Date.now() - this.lastOperatingEnd) < this.historyInterval;
         }
     }
 

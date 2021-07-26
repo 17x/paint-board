@@ -2,7 +2,9 @@ module.exports = {
     "presets" : [
         [
             "@babel/preset-env", {
-            "modules" : false
+            "targets": {
+                "safari": "11.1"
+            }
         }
         ]
     ],

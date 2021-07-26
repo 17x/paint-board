@@ -70,6 +70,10 @@ enable history
 
 history record stack max length
 
+##### historyInterval `Number`
+
+a time to help determine whether the new history record's creation between two operations
+
 ##### clearColor `String`
 
 if you do wanna do  **real clear** , just set its value to **transparent**
