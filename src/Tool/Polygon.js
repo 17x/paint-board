@@ -1,6 +1,7 @@
 import { isTouch, eventsName } from '../Utils/Base';
 import CoordTransform from '../Utils/CoordTransform';
 import Stroke from '../Utils/Stroke';
+import CloneCanvas from '../Utils/CloneCanvas';
 
 const Polygon = (() => {
     let canvas = null;
@@ -9,18 +10,6 @@ const Polygon = (() => {
     let that = null;
     let cloneCanvas = null;
     let isClean = true
-
-    const CloneCanvas = (origin) => {
-        let target = document.createElement('canvas');
-        let cvs = target.getContext('2d');
-
-        target.width = origin.width;
-        target.height = origin.height;
-
-        cvs.drawImage(origin, 0, 0);
-
-        return target;
-    };
 
     const HandleMove = (event) => {
         if(points.length > 0){
