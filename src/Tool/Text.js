@@ -221,11 +221,15 @@ const Text = (() => {
                     cursorY = currY;
                     cursorHeight = line.height;
 
+                    // console.log(editCharIndex, charIndex);
+
                     // if last one
-                    if(charIndex + 1 === chars.length){
+                    if(editCharIndex === chars.length){
+                        // console.log(' las t one');
                         cursorX = currX;
                     } else if(editCharIndex === charIndex){
                         cursorX = currX - char.width;
+                        // console.log(cursorX,currX);
                     }
                 }
             });
