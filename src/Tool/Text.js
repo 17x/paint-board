@@ -6,11 +6,12 @@ import CloneCanvas from '../Utils/CloneCanvas';
 import Fill from '../Utils/Fill';
 
 const Text = (() => {
-    let inputDom = null;
     let canvas = null;
     let ctx = null;
+    // init position
     let textStartPos = null;
     let cloneCanvas = null;
+    // data
     let textData = null;
     let fontSize = 30;
     let fontFamily = 'sans-serif';
@@ -25,6 +26,11 @@ const Text = (() => {
     let cursorShowing = true;
     let textArea = document.createElement('textarea');
     let that = null;
+    let gestureStartPos = null;
+
+    const disabledSelection = (event) => {
+        event.preventDefault();
+    };
 
     const FormatStr = (str) => {
         let data = {
@@ -76,7 +82,7 @@ const Text = (() => {
         };
 
         // no input parameters
-        if(!x){
+        if(!x && !y){
             result.y = lines.length - 1;
 
             if(lines.length > 0){
@@ -142,6 +148,15 @@ const Text = (() => {
         return result;
     };
 
+    const GetRange = ({ x : x1, y : y1 }, { x : x2, y : y2 }) => {
+        console.log(
+            x1,
+            y1,
+            x2,
+            y2
+        );
+    };
+
     const Render = () => {
         // render basic
         that.CleanBoard();
@@ -193,7 +208,7 @@ const Text = (() => {
 
             chars.map((char, charIndex) => {
                 // render char's bg
-                if(!char.selected){
+                if(char.selected){
                     Fill({
                         type : 'rect',
                         ctx,
@@ -253,7 +268,6 @@ const Text = (() => {
         that = this;
         ctx = this.ctx;
         canvas = this.canvas;
-        inputDom = document.createElement('input');
         fontSize = this.fontSize || fontSize;
         fontFamily = this.fontFamily || fontFamily;
         fillStyle = this.textColor || fillStyle;
@@ -261,46 +275,28 @@ const Text = (() => {
         textData = null;
         editing = false;
 
-        /* const disabledSelection = (event) => {
-         event.preventDefault();
-         };*/
-        /*
-         let lastCoord = null;
+        const move = (event) => {
+            let x = isTouch ? event.touches[0].pageX : event.x;
+            let y = isTouch ? event.touches[0].pageY : event.y;
+            let coord = CoordTransform({
+                canvas,
+                event : {
+                    x : Math.round(x),
+                    y : Math.round(y)
+                }
+            });
 
-         const move = (event) => {
-         let { strokeWidth, strokeColor } = this.strokeConfig;
-         let x = isTouch ? event.touches[0].pageX : event.x;
-         let y = isTouch ? event.touches[0].pageY : event.y;
+            GetRange(gestureStartPos, coord);
 
-         let currCoord = CoordTransform({
-         canvas,
-         event : {
-         x,
-         y
-         }
-         });
+            event.preventDefault();
+        };
 
-         this.Operating();
-
-         Stroke({
-         start : lastCoord,
-         end : currCoord,
-         ctx,
-         strokeWidth,
-         strokeColor
-         });
-
-         lastCoord = currCoord;
-         event.preventDefault();
-         };
-
-         const up = () => {
-         this.OperatingEnd();
-         document.removeEventListener(eventsName[1], move);
-         document.removeEventListener('selectstart', disabledSelection);
-         document.removeEventListener(eventsName[2], up);
-         };
-         */
+        const up = () => {
+            this.OperatingEnd();
+            document.removeEventListener(eventsName[1], move);
+            document.removeEventListener('selectstart', disabledSelection);
+            document.removeEventListener(eventsName[2], up);
+        };
 
         canvas['on' + eventsName[0]] = (event) => {
             let x = isTouch ? event.touches[0].pageX : event.x;
@@ -312,7 +308,8 @@ const Text = (() => {
                     y : Math.round(y)
                 }
             });
-            this.OperatingStart();
+
+            gestureStartPos = coord;
 
             if(editing){
                 // check click position
@@ -325,6 +322,8 @@ const Text = (() => {
             } else{
                 cloneCanvas = CloneCanvas(this.canvas);
                 textStartPos = coord;
+
+                this.OperatingStart();
 
                 // let charStr = '给我一个理由忘记\n当时做的决定,有些\n你当我\nhello,world!';
                 let charStr = '你好\nHi\nCiao\nسلام\nBonjour\nनमस्ते\n안녕하세요\nこんにちは';
@@ -346,9 +345,9 @@ const Text = (() => {
                 }, 500);
             }
 
-            // document.addEventListener(eventsName[1], move, { passive : false });
-            // document.addEventListener('selectstart', disabledSelection);
-            // document.addEventListener(eventsName[2], up);
+            document.addEventListener(eventsName[1], move, { passive : false });
+            document.addEventListener('selectstart', disabledSelection);
+            document.addEventListener(eventsName[2], up);
         };
     };
 
