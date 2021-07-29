@@ -26,7 +26,6 @@ const Text = (() => {
     let cursorShowing = true;
     let textArea = document.createElement('textarea');
     let that = null;
-    let gestureStartPos = null;
 
     const disabledSelection = (event) => {
         event.preventDefault();
@@ -74,7 +73,7 @@ const Text = (() => {
         return data;
     };
 
-    const GetCursorPos = ({ x, y } = {}) => {
+    const GetCursorPos = ({ x, y, freeMode = false } = {}) => {
         let { lines, width, height } = textData;
         let result = {
             x : 0,
@@ -148,13 +147,13 @@ const Text = (() => {
         return result;
     };
 
-    const GetRange = ({ x : x1, y : y1 }, { x : x2, y : y2 }) => {
-        console.log(
-            x1,
-            y1,
-            x2,
-            y2
-        );
+    const GetRange = (movingPos) => {
+        let r = GetCursorPos({
+            ...movingPos,
+            freeMode : true
+        })
+
+        console.log(r);
     };
 
     const Render = () => {
@@ -286,7 +285,7 @@ const Text = (() => {
                 }
             });
 
-            GetRange(gestureStartPos, coord);
+            GetRange(coord);
 
             event.preventDefault();
         };
@@ -309,11 +308,9 @@ const Text = (() => {
                 }
             });
 
-            gestureStartPos = coord;
-
             if(editing){
                 // check click position
-                let r = GetCursorPos(coord);
+                let r = GetCursorPos({ ...coord });
                 console.log(r);
                 editCharIndex = r.x;
                 editLineIndex = r.y;
