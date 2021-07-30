@@ -253,6 +253,7 @@ const Text = (() => {
         }
         // console.log('Finish ...');
     };
+
     const ClearRange = () =>{
         let { lines } = textData;
         textData.lines.map(({ chars }) => chars.map(char => char.seleted = false));
@@ -265,6 +266,7 @@ const Text = (() => {
         }
 
     }
+
     const Render = () => {
         // render basic
         that.CleanBoard();
