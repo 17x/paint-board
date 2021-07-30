@@ -76,8 +76,8 @@ const Text = (() => {
     const GetCursorPos = ({ x, y, freeMode = false } = {}) => {
         let { lines, width, height } = textData;
         let result = {
-            x : 0,
-            y : 0
+            y : 0,
+            x : 0
         };
         let offsetY = y - textStartPos.y;
         let offsetX = x - textStartPos.x;
@@ -191,6 +191,8 @@ const Text = (() => {
         let start;
         let end;
 
+        // console.log(C1,C2);
+
         rangeLength = 0
 
         if(C2.y === C1.y){
@@ -218,25 +220,38 @@ const Text = (() => {
 
         let inRange = false;
 
+        // console.log(start,end);
+
         for(let i = 0; i < lines.length; i++){
             let line = lines[i];
-
-            for(let k = 0; k < line.chars.length; k++){
-                if(i >= start.y && k >= start.x){
-                    inRange = true
+            let { chars } = line;
+            for(let k = 0; k < chars.length + 1; k++){
+                if(
+                    (i === start.y && k === start.x) ||
+                    (i >= start.y && (start.x === chars.length && k === chars.length))
+                ){
+                    // console.log(i, k,'start');
+                    inRange = true;
                     rangeLength++;
                 }
 
+                if(i > start.y && k > start.x){
+                    // console.log(i, k);
+                    rangeLength++;
+                }
                 if(
                     i > end.y ||
-                    (i === end.y && (k >= end.x || k === line.chars.length))
+                    (i === end.y && (k >= end.x || k === chars.length))
                 ){
                     inRange = false;
                 }
 
-                lines[i].chars[k].selected = inRange;
+                if(k < chars.length){
+                    chars[k].selected = inRange;
+                }
             }
         }
+        // console.log('Finish ...');
     };
     const ClearRange = () =>{
         let { lines } = textData;
