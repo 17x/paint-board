@@ -438,7 +438,7 @@ const Text = (() => {
                 this.OperatingStart();
 
                 // let charStr = '给我一个理由忘记\n当时做的决定,有些\n你当我\nhello,world!';
-                let charStr = '你好\nHi\nCiao\nسلام\nBonjour\nनमस्ते\n안녕하세요\nこんにちは';
+                let charStr = '你好\nHi-hello-world!\nCiao\nسلام\nBonjour\nनमस्ते\n안녕하세요\nこんにちは';
                 // let charStr = '文本';
 
                 // test data
