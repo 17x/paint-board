@@ -26,7 +26,7 @@ const Text = (() => {
     let cursorShowing = true;
     let textArea = document.createElement('textarea');
     let that = null;
-    let selecting = false
+    let selecting = false;
     const disabledSelection = (event) => {
         event.preventDefault();
     };
@@ -115,7 +115,6 @@ const Text = (() => {
         };
 
         const GetChar = (line) => {
-            // console.log(line);
             let r = {
                 outer : false,
                 i : 0
@@ -132,13 +131,13 @@ const Text = (() => {
                     let char = line.chars[k];
                     let centerOfChar = currX + char.width / 2;
 
-                    if(offsetX < centerOfChar){
+                    if(offsetX <= centerOfChar){
                         r.i = k;
                         break;
                     } else if(offsetX > centerOfChar && offsetX < currX + char.width){
                         r.i = k + 1;
                         break;
-                    } else if(offsetX > currX + line.width){
+                    } else if(offsetX >= (currX + line.width)){
                         r.i = line.chars.length;
                         break;
                     }
@@ -146,7 +145,7 @@ const Text = (() => {
                     currX += char.width;
                 }
             }
-
+            console.log(r);
             return r;
         };
 
@@ -189,9 +188,11 @@ const Text = (() => {
             ...movingPos,
             freeMode : true
         });
-        // console.log(C2);
-        let start = null;
-        let end = null;
+        let start;
+        let end;
+
+        // console.log(C1,C2);
+
         if(C2.y === C1.y){
             // same line
             if(C1.x < C2.x){
@@ -215,37 +216,26 @@ const Text = (() => {
             }
         }
 
+        let inRange = false;
         // console.log(start,end);
-// return
-        let startTag = false
-        let PB
+
         for(let i = 0; i < lines.length; i++){
-            let line = lines[i]
+            let line = lines[i];
             // console.log(i);
 
             for(let k = 0; k < line.chars.length; k++){
-                if(i === start.y && k === start.x){
-                    startTag = true;
+                if(i >= start.y && k >= start.x){
+                    inRange = true
                 }
 
-                if(i === end.y && k === end.x){
-                    startTag = false;
+                if(
+                    i > end.y ||
+                    (i === end.y && (k >= end.x || k === line.chars.length))
+                ){
+                    inRange = false;
                 }
 
-                textData.lines[i].chars[k].selected = startTag;
-                /*if(startTag){
-
-                }else{
-
-                }*/
-
-
-                /*
-                let inRange = i >= start.y && i <= end.y && k >= start.x && k <= end.x;
-
-                    console.log(i, k,start,end);
-                if(inRange){
-                }*/
+                lines[i].chars[k].selected = inRange;
             }
         }
     };
@@ -405,7 +395,6 @@ const Text = (() => {
             if(editing){
                 // check click position
                 let r = GetCursorPos({ ...coord });
-                console.log(r);
                 editCharIndex = r.x;
                 editLineIndex = r.y;
                 cursorShowing = true;
