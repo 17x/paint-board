@@ -26,7 +26,7 @@ const Text = (() => {
     let cursorShowing = true;
     let textArea = document.createElement('textarea');
     let that = null;
-    let selecting = false;
+    let rangeLength = 0;
     const disabledSelection = (event) => {
         event.preventDefault();
     };
@@ -145,7 +145,7 @@ const Text = (() => {
                     currX += char.width;
                 }
             }
-            console.log(r);
+            // console.log(r);
             return r;
         };
 
@@ -191,7 +191,7 @@ const Text = (() => {
         let start;
         let end;
 
-        // console.log(C1,C2);
+        rangeLength = 0
 
         if(C2.y === C1.y){
             // same line
@@ -217,15 +217,14 @@ const Text = (() => {
         }
 
         let inRange = false;
-        // console.log(start,end);
 
         for(let i = 0; i < lines.length; i++){
             let line = lines[i];
-            // console.log(i);
 
             for(let k = 0; k < line.chars.length; k++){
                 if(i >= start.y && k >= start.x){
                     inRange = true
+                    rangeLength++;
                 }
 
                 if(
@@ -239,7 +238,18 @@ const Text = (() => {
             }
         }
     };
+    const ClearRange = () =>{
+        let { lines } = textData;
+        textData.lines.map(({ chars }) => chars.map(char => char.seleted = false));
 
+        for(let i = 0; i < lines.length; i++){
+            let line = lines[i];
+            for(let k = 0; k < line.chars.length; k++){
+                lines[i].chars[k].selected = false;
+            }
+        }
+
+    }
     const Render = () => {
         // render basic
         that.CleanBoard();
@@ -337,7 +347,7 @@ const Text = (() => {
         });
 
         // render cursor
-        if(editing && cursorShowing){
+        if(rangeLength === 0 && editing && cursorShowing){
             ctx.beginPath();
             ctx.moveTo(cursorX, cursorY);
             ctx.lineTo(cursorX, cursorY + cursorHeight);
@@ -375,6 +385,11 @@ const Text = (() => {
         };
 
         const up = () => {
+            if(rangeLength === 0){
+                ClearRange();
+                cursorShowing = true
+                Render();
+            }
             this.OperatingEnd();
             document.removeEventListener(eventsName[1], move);
             document.removeEventListener('selectstart', disabledSelection);
@@ -395,6 +410,8 @@ const Text = (() => {
             if(editing){
                 // check click position
                 let r = GetCursorPos({ ...coord });
+
+                rangeLength = 0
                 editCharIndex = r.x;
                 editLineIndex = r.y;
                 cursorShowing = true;
