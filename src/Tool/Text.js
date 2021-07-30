@@ -26,7 +26,7 @@ const Text = (() => {
     let cursorShowing = true;
     let textArea = document.createElement('textarea');
     let that = null;
-
+    let selecting = false
     const disabledSelection = (event) => {
         event.preventDefault();
     };
@@ -79,10 +79,80 @@ const Text = (() => {
             x : 0,
             y : 0
         };
+        let offsetY = y - textStartPos.y;
+        let offsetX = x - textStartPos.x;
+
+        const GetLine = () => {
+            let r = {
+                outer : false,
+                i : 0
+            };
+            let currY = 0;
+
+            if(offsetY < 0){
+                r.outer = true;
+
+            } else if(offsetY > height){
+                r.outer = true;
+                r.i = lines.length - 1;
+            } else{
+                // if( offsetY > 0 && offsetY < height){}
+                // console.log('inside of text area');
+                for(let i = 0; i < lines.length; i++){
+                    let line = lines[i];
+
+                    currY += line.height;
+
+                    // determine line
+                    if(offsetY < currY){
+                        r.i = i;
+                        break;
+                    }
+                }
+            }
+
+            return r;
+        };
+
+        const GetChar = (line) => {
+            // console.log(line);
+            let r = {
+                outer : false,
+                i : 0
+            };
+            let currX = 0;
+
+            if(offsetX < 0){
+                r.outer = true;
+            } else if(offsetX > width){
+                r.i = line.chars.length;
+                r.outer = true;
+            } else{
+                for(let k = 0; k < line.chars.length; k++){
+                    let char = line.chars[k];
+                    let centerOfChar = currX + char.width / 2;
+
+                    if(offsetX < centerOfChar){
+                        r.i = k;
+                        break;
+                    } else if(offsetX > centerOfChar && offsetX < currX + char.width){
+                        r.i = k + 1;
+                        break;
+                    } else if(offsetX > currX + line.width){
+                        r.i = line.chars.length;
+                        break;
+                    }
+
+                    currX += char.width;
+                }
+            }
+
+            return r;
+        };
 
         // no input parameters
         if(!x && !y){
-            result.y = lines.length - 1;
+            result.y = lines.length;
 
             if(lines.length > 0){
                 result.y = lines[0].chars.length;
@@ -90,70 +160,94 @@ const Text = (() => {
                 result.y = 0;
             }
         } else{
-            let offsetX = x - textStartPos.x;
-            let offsetY = y - textStartPos.y;
+            let lineResult = GetLine();
 
-            if(
-                offsetX > 0 && offsetX < width &&
-                offsetY > 0 && offsetY < height
-            ){
-                // inside of text area
-                let currX = 0;
-                let currY = 0;
-
-                // console.log('inside of text area');
-                for(let i = 0; i < lines.length; i++){
-                    let line = lines[i];
-
-                    currX = 0;
-                    currY += line.height;
-
-                    // determine line
-                    if(offsetY < currY){
-                        result.y = i;
-
-                        for(let k = 0; k < line.chars.length; k++){
-                            let char = line.chars[k];
-                            let centerOfChar = currX + char.width / 2;
-
-                            // console.log(k, offsetY, centerOfChar);
-                            if(offsetX < centerOfChar){
-                                result.x = k;
-                                break;
-                            } else if(offsetX > centerOfChar && offsetX < currX + char.width){
-                                // console.log('right');
-                                result.x = k + 1;
-                                break;
-                            } else if(offsetX > currX + line.width){
-                                result.x = line.chars.length;
-                                break;
-                            }
-
-                            currX += char.width;
-                        }
-
-                        break;
-                    }
-
-                }
+            if(lineResult.outer && !freeMode){
+                result = false;
             } else{
-                // outside of text area
-                return false;
+                let charResult = GetChar(lines[lineResult.i]);
+                result.y = lineResult.i;
+                // console.log(charResult);
+                if(charResult.outer && !freeMode){
+                    result = false;
+                } else{
+                    result.x = charResult.i;
+                }
             }
         }
-
-        // console.log(result);
 
         return result;
     };
 
-    const GetRange = (movingPos) => {
-        let r = GetCursorPos({
+    const SetRange = (movingPos) => {
+        let { lines } = textData;
+        let C1 = {
+            y : editLineIndex,
+            x : editCharIndex
+        };
+        let C2 = GetCursorPos({
             ...movingPos,
             freeMode : true
-        })
+        });
+        // console.log(C2);
+        let start = null;
+        let end = null;
+        if(C2.y === C1.y){
+            // same line
+            if(C1.x < C2.x){
+                start = C1;
+                end = C2;
+            } else if(C2.x === C1.x){
+                // same char
+                start = C1;
+                end = C2;
+            } else{
+                start = C2;
+                end = C1;
+            }
+        } else{
+            if(C2.y < C1.y){
+                start = C2;
+                end = C1;
+            } else{
+                start = C1;
+                end = C2;
+            }
+        }
 
-        console.log(r);
+        // console.log(start,end);
+// return
+        let startTag = false
+        let PB
+        for(let i = 0; i < lines.length; i++){
+            let line = lines[i]
+            // console.log(i);
+
+            for(let k = 0; k < line.chars.length; k++){
+                if(i === start.y && k === start.x){
+                    startTag = true;
+                }
+
+                if(i === end.y && k === end.x){
+                    startTag = false;
+                }
+
+                textData.lines[i].chars[k].selected = startTag;
+                /*if(startTag){
+
+                }else{
+
+                }*/
+
+
+                /*
+                let inRange = i >= start.y && i <= end.y && k >= start.x && k <= end.x;
+
+                    console.log(i, k,start,end);
+                if(inRange){
+                }*/
+            }
+        }
     };
 
     const Render = () => {
@@ -285,8 +379,8 @@ const Text = (() => {
                 }
             });
 
-            GetRange(coord);
-
+            SetRange(coord);
+            Render();
             event.preventDefault();
         };
 
