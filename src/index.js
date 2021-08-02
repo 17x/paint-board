@@ -52,6 +52,7 @@ class PaintBoard{
 
             canvas.style.background = `${ color || '' } url(${ image.src }) 0 0 no-repeat`;
             canvas.style.backgroundSize = 'contain';
+            canvas.style.backgroundSize = '100% 100%';
             // canvas.style.backgroundPosition = '100% 100%'
         }
         this.background = background;
