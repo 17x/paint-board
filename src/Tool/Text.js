@@ -27,6 +27,8 @@ const Text = (() => {
     let textArea = document.createElement('textarea');
     let that = null;
     let rangeLength = 0;
+    let finishFlag = false;
+
     const disabledSelection = (event) => {
         event.preventDefault();
     };
@@ -193,7 +195,7 @@ const Text = (() => {
 
         // console.log(C1,C2);
 
-        rangeLength = 0
+        rangeLength = 0;
 
         if(C2.y === C1.y){
             // same line
@@ -254,7 +256,7 @@ const Text = (() => {
         // console.log('Finish ...');
     };
 
-    const ClearRange = () =>{
+    const ClearRange = () => {
         let { lines } = textData;
         textData.lines.map(({ chars }) => chars.map(char => char.seleted = false));
 
@@ -265,9 +267,9 @@ const Text = (() => {
             }
         }
 
-    }
+    };
 
-    const Render = () => {
+    const Render = (mode) => {
         // render basic
         that.CleanBoard();
         ctx.drawImage(cloneCanvas, 0, 0);
@@ -278,27 +280,29 @@ const Text = (() => {
 
         ctx.save();
 
-        // render box
-        let { x, y } = textStartPos;
-        let _m = 2;
-        let _w = textBoxWidth + _m;
-        let _h = textBoxHeight + _m;
-        let radius = 3;
+        if(mode !== 'finish'){
+            // render box
+            let { x, y } = textStartPos;
+            let _m = 2;
+            let _w = textBoxWidth + _m;
+            let _h = textBoxHeight + _m;
+            let radius = 3;
 
-        x -= 1;
-        y -= 1;
+            x -= 1;
+            y -= 1;
 
-        ctx.beginPath();
-        ctx.moveTo(x, y + radius);
-        ctx.lineTo(x, y + _h - radius);
-        ctx.arcTo(x, y + _h, x + radius, y + _h, radius);
-        ctx.lineTo(x + _w - radius, y + _h);
-        ctx.arcTo(x + _w, y + _h, x + _w, y + _h - radius, radius);
-        ctx.lineTo(x + _w, y + radius);
-        ctx.arcTo(x + _w, y, x + _w - radius, y, radius);
-        ctx.lineTo(x + radius, y);
-        ctx.arcTo(x, y, x, y + radius, radius);
-        ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y + radius);
+            ctx.lineTo(x, y + _h - radius);
+            ctx.arcTo(x, y + _h, x + radius, y + _h, radius);
+            ctx.lineTo(x + _w - radius, y + _h);
+            ctx.arcTo(x + _w, y + _h, x + _w, y + _h - radius, radius);
+            ctx.lineTo(x + _w, y + radius);
+            ctx.arcTo(x + _w, y, x + _w - radius, y, radius);
+            ctx.lineTo(x + radius, y);
+            ctx.arcTo(x, y, x, y + radius, radius);
+            ctx.stroke();
+        }
 
         // cursors
         let cursorX = 0;
@@ -364,7 +368,7 @@ const Text = (() => {
         });
 
         // render cursor
-        if(rangeLength === 0 && editing && cursorShowing){
+        if(rangeLength === 0 && editing && cursorShowing && mode !== 'finish'){
             ctx.beginPath();
             ctx.moveTo(cursorX, cursorY);
             ctx.lineTo(cursorX, cursorY + cursorHeight);
@@ -384,7 +388,6 @@ const Text = (() => {
         selectStyle = this.selectStyle || selectStyle;
         textData = null;
         editing = false;
-
         const move = (event) => {
             let x = isTouch ? event.touches[0].pageX : event.x;
             let y = isTouch ? event.touches[0].pageY : event.y;
@@ -402,12 +405,19 @@ const Text = (() => {
         };
 
         const up = () => {
-            if(rangeLength === 0){
+            if(finishFlag){
+                clearInterval(_timer)
                 ClearRange();
-                cursorShowing = true
-                Render();
+                Render('finish');
+                Quit();
+                this.OperatingEnd();
+            }else{
+                if(rangeLength === 0){
+                    ClearRange();
+                    cursorShowing = true;
+                    Render();
+                }
             }
-            this.OperatingEnd();
             document.removeEventListener(eventsName[1], move);
             document.removeEventListener('selectstart', disabledSelection);
             document.removeEventListener(eventsName[2], up);
@@ -428,12 +438,21 @@ const Text = (() => {
                 // check click position
                 let r = GetCursorPos({ ...coord });
 
-                rangeLength = 0
-                editCharIndex = r.x;
-                editLineIndex = r.y;
-                cursorShowing = true;
-                Render();
+                rangeLength = 0;
+
+                if(r === false){
+                    // finish editing
+                    // clearInterval(_timer);
+                    // Render('finish');
+                    finishFlag = true
+                } else{
+                    editCharIndex = r.x;
+                    editLineIndex = r.y;
+                    cursorShowing = true;
+                    Render();
+                }
             } else{
+                finishFlag = false
                 cloneCanvas = CloneCanvas(this.canvas);
                 textStartPos = coord;
 
