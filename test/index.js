@@ -303,5 +303,5 @@ async function Onload(){
         hidInput.focus();
     };
 
-    paintBoard.Tool('text');
+    // paintBoard.Tool('text');
 }
