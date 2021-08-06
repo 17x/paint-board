@@ -17,8 +17,6 @@ const Text = (() => {
     let fontFamily = 'sans-serif';
     let fillStyle = '#000000';
     let selectStyle = '#9bf56e';
-    let textBoxWidth = 100;
-    let textBoxHeight = 20;
     let editing = false;
     let _timer = null;
     let editLineIndex = 0;
@@ -28,6 +26,9 @@ const Text = (() => {
     let that = null;
     let rangeLength = 0;
     let finishFlag = false;
+    // for minimum rendering
+    let safeWidth = 0;
+    let safeHeight = 0;
 
     const disabledSelection = (event) => {
         event.preventDefault();
@@ -73,6 +74,30 @@ const Text = (() => {
                         });
 
         return data;
+    };
+
+    const CalcSize = () => {
+        let boxWidth = 0;
+        let boxHeight = 0;
+
+        textData.lines.map(line => {
+            let lineWidth = 0;
+            let lineHeight = 0;
+
+            line.chars.map(({ width, height }) => {
+                lineWidth += width;
+                lineHeight = Math.max(lineHeight, height);
+            });
+
+            line.width = lineWidth;
+            line.height = lineHeight;
+
+            boxWidth = Math.max(boxWidth, lineWidth);
+            boxHeight += lineHeight;
+        });
+
+        textData.width = boxWidth;
+        textData.height = boxHeight;
     };
 
     const GetCursorPos = ({ x, y, freeMode = false } = {}) => {
@@ -283,13 +308,26 @@ const Text = (() => {
         if(mode !== 'finish'){
             // render box
             let { x, y } = textStartPos;
-            let _m = 2;
-            let _w = textBoxWidth + _m;
-            let _h = textBoxHeight + _m;
+            let offset = 2;
+            let _w = textData.width;
+            let _h = textData.height;
             let radius = 3;
 
-            x -= 1;
-            y -= 1;
+            // console.log(_w, _h);
+            // save last
+            if(_w > 0 && _h > 0){
+                safeWidth = _w;
+                safeHeight = _h;
+            } else{
+                _w = safeWidth;
+                _h = safeHeight;
+            }
+
+            _w += offset;
+            _h += offset;
+
+            x -= offset / 2;
+            y -= offset / 2;
 
             ctx.beginPath();
             ctx.moveTo(x, y + radius);
@@ -378,6 +416,72 @@ const Text = (() => {
         ctx.restore();
     };
 
+    const HandleKeyDown = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const HandleKeyUp = (e) => {
+        console.log(e.key, e.keyCode);
+        // Tab 9
+        // Text.js:382 Shift 16
+        // Text.js:382 Control 17
+        // Text.js:382 Meta 91
+        // Text.js:382 Alt 18
+        // Text.js:382   32
+        // Text.js:382 Alt 18
+        // Text.js:382 Meta 93
+        // Text.js:382 ContextMenu 93
+        // Text.js:382 Control 17
+        // Text.js:382 Backspace 8
+        // Text.js:382 Enter 13
+        // Text.js:382 Escape 27
+        // Text.js:382 PageUp 33
+        // Text.js:382 PageDown 34
+        // Text.js:382 Help 45
+        // Text.js:382 Delete 46
+        // Text.js:382 Home 36
+        // Text.js:382 End 35
+        // ArrowRight 39
+        // ArrowLeft 37
+        let { keyCode } = e;
+
+        switch(keyCode){
+            // Backspace
+            case 8:
+                //
+                if(editCharIndex === 0){
+
+                    editCharIndex = null;
+                } else{
+                    textData.lines[editLineIndex].chars.splice(editCharIndex - 1, 1);
+                    editCharIndex -= 1;
+                }
+                break;
+            // Tab
+            case 9:
+                let char = ' ';
+                let r = CalcTextRect('&nbsp;', fontSize, fontFamily);
+
+                textData.lines[editLineIndex].chars.splice(editCharIndex, 0, {
+                    char,
+                    width : r.width,
+                    height : r.height
+                }, {
+                    char,
+                    width : r.width,
+                    height : r.height
+                });
+                editCharIndex += 2;
+                break;
+
+        }
+
+        cursorShowing = true;
+        CalcSize();
+        Render();
+    };
+
     const Start = function(){
         that = this;
         ctx = this.ctx;
@@ -406,12 +510,14 @@ const Text = (() => {
 
         const up = () => {
             if(finishFlag){
-                clearInterval(_timer)
+                clearInterval(_timer);
                 ClearRange();
                 Render('finish');
-                Quit();
+                // Quit();
+                finishFlag = false;
                 this.OperatingEnd();
-            }else{
+                Start.apply(that);
+            } else{
                 if(rangeLength === 0){
                     ClearRange();
                     cursorShowing = true;
@@ -444,28 +550,33 @@ const Text = (() => {
                     // finish editing
                     // clearInterval(_timer);
                     // Render('finish');
-                    finishFlag = true
+                    finishFlag = true;
                 } else{
                     editCharIndex = r.x;
                     editLineIndex = r.y;
                     cursorShowing = true;
                     Render();
                 }
+
+                document.addEventListener(eventsName[1], move, { passive : false });
+
             } else{
-                finishFlag = false
+                // init text
+                finishFlag = false;
                 cloneCanvas = CloneCanvas(this.canvas);
                 textStartPos = coord;
 
                 this.OperatingStart();
 
                 // let charStr = '给我一个理由忘记\n当时做的决定,有些\n你当我\nhello,world!';
-                let charStr = '你好\nHi-hello-world!\nCiao\nسلام\nBonjour\nनमस्ते\n안녕하세요\nこんにちは';
+                // let charStr = '你好\nHi-hello-world!\nCiao\nسلام\nBonjour\nनमस्ते\n안녕하세요\nこんにちは';
                 // let charStr = '文本';
+                let charStr = '输入文本';
 
+                editLineIndex = 0;
+                editCharIndex = 4;
                 // test data
                 textData = FormatStr(charStr);
-                textBoxWidth = textData.width;
-                textBoxHeight = textData.height;
                 GetCursorPos();
                 Render();
 
@@ -478,10 +589,13 @@ const Text = (() => {
                 }, 500);
             }
 
-            document.addEventListener(eventsName[1], move, { passive : false });
             document.addEventListener('selectstart', disabledSelection);
             document.addEventListener(eventsName[2], up);
         };
+
+        document.addEventListener('keydown', HandleKeyDown);
+        document.addEventListener('keyup', HandleKeyUp);
+
     };
 
     const Quit = function(){

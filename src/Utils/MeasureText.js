@@ -42,14 +42,14 @@ const CalcTextRect = (text, fontSize, fontFamily) => {
     oDiv.style.whiteSpace = 'nowrap';
     oDiv.style.width = w;
     oDiv.style.height = h;
-    // oDiv.style.visibility = 'hidden';
+    oDiv.style.visibility = 'hidden';
     oDiv.style.display = 'inline-block';
     oDiv.style.fontSize = fontSize + 'px';
     oDiv.style.fontFamily = fontFamily;
 
     document.body.appendChild(oDiv);
     result = oDiv.getBoundingClientRect();
-    // document.body.removeChild(oDiv);
+    document.body.removeChild(oDiv);
 
     // 宽度精度向上取整
     result.width = Math.ceil(result.width);
