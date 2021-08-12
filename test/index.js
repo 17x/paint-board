@@ -310,5 +310,5 @@ async function Onload(){
         hidInput.focus();
     };
 
-    // paintBoard.Tool('line');
+    // paintBoard.Tool('rline');
 }
