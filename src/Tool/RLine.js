@@ -1,10 +1,25 @@
+/*
+* RLine : Real Line
+* */
 import { isTouch, eventsName } from '../Utils/Base';
 import CoordTransform from '../Utils/CoordTransform';
 import Stroke from '../Utils/Stroke';
 import Fill from '../Utils/Fill';
 import CloneCanvas from '../Utils/CloneCanvas';
 
-const Line = (() => {
+const extend = (A, B, len) => {
+    let lenAB = Math.sqrt(
+        Math.pow(A.x - B.x, 2) +
+        Math.pow(A.y - B.y, 2)
+    );
+    let C = {};
+
+    C.x = B.x + (B.x - A.x) / lenAB * len;
+    C.y = B.y + (B.y - A.y) / lenAB * len;
+
+    return C;
+};
+const RLine = (() => {
     let canvas = null;
     let ctx = null;
     let points = [];
@@ -37,6 +52,7 @@ const Line = (() => {
         let { width, height } = that.canvas;
         let start = points[0];
         let end = points[1];
+
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(cloneCanvas, 0, 0);
 
@@ -54,10 +70,13 @@ const Line = (() => {
                     }
                 });
             } else{
+                let extendedStart = extend(start, end, canvas.width);
+                let extendedEnd = extend(end, start, canvas.width);
+
                 Stroke({
                     ctx,
-                    start,
-                    end,
+                    start:extendedStart,
+                    end:extendedEnd,
                     strokeWidth,
                     strokeColor
                 });
@@ -156,11 +175,11 @@ const Line = (() => {
     };
 
     return {
-        name : 'line',
+        name : 'rline',
         Start,
         Quit,
         UpdateClone
     };
 })();
 
-export default Line;
+export default RLine;
