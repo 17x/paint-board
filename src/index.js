@@ -1,6 +1,7 @@
 import Pen from './Tool/Pen';
 // import Text from './Tool/Text';
 import RLine from './Tool/RLine';
+import HLine from './Tool/HLine';
 import Line from './Tool/Line';
 import Eraser from './Tool/Eraser';
 import Polygon from './Tool/Polygon';
@@ -10,6 +11,7 @@ const toolMap = {
     pen : Pen,
     // text : Text,
     rline : RLine,
+    hline : HLine,
     line : Line,
     eraser : Eraser,
     polygon : Polygon,
