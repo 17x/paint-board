@@ -96,9 +96,9 @@ class PaintBoard{
     }
 
     Method(methodName){
-        /* if(this.currentTool && this.currentTool.name === 'polygon'){
-         this.currentTool.Quit();
-         }*/
+        // quit current tool status
+        // but keep it
+        this.currentTool && this.currentTool.Quit();
 
         methodName = methodName.substr(0, 1)
                                .toUpperCase() + methodName.substr(1, methodName.length);
@@ -107,6 +107,9 @@ class PaintBoard{
         if(this.currentTool && this.currentTool.name === 'polygon'){
             this.currentTool.UpdateClone();
         }
+
+        // resume tool use
+        this.currentTool && this.currentTool.Start.apply(this);
     }
 
     OperatingStart(){
